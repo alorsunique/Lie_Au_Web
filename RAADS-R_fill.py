@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 
 # Set the answer key here
 # The test has 80 questions and an array will dictate what answer will be chosen for each question
-answer_key = np.zeros(80)
+answer_key = np.tile(np.array([0,3]),80)
 print(f"Answer Key\n{answer_key}")
 
 # Open browser
@@ -32,5 +32,5 @@ count = 0
 for element in div_element_list:
     sub_element = element.find_elements(By.CLASS_NAME, 'psychometrics-option-radio')
     driver.execute_script("arguments[0].scrollIntoView();", element)
-    sub_element[answer_key[count]].click()
+    sub_element[int(answer_key[count])].click()
     count += 1
