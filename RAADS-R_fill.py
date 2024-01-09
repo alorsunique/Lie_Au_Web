@@ -6,7 +6,19 @@ from selenium.webdriver.common.by import By
 
 # Set the answer key here
 # The test has 80 questions and an array will dictate what answer will be chosen for each question
-answer_key = np.tile(np.array([0,3]),80)
+answer_tile_element = []
+count = 4
+down_count = count
+while down_count > 0:
+    answer_tile_element.append(0)
+    down_count -=1
+down_count = count
+while down_count > 0:
+    answer_tile_element.append(3)
+    down_count -=1
+print(f"Answer Tile\n{answer_tile_element}")
+
+answer_key = np.tile(np.array(answer_tile_element),80)
 print(f"Answer Key\n{answer_key}")
 
 # Open browser
