@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 # Set the answer key here
 # The test has 80 questions and an array will dictate what answer will be chosen for each question
 answer_tile_element = []
-count = 6
+count = 12
 down_count = count
 while down_count > 0:
     answer_tile_element.append(0)
