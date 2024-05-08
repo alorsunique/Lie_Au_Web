@@ -10,16 +10,21 @@ import io
 def get_images_from_google(driver, delay, max_images):
     def scroll_down(driver):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        print(f"Sleeping for {delay}")
         time.sleep(delay)
 
     image_urls = set()
     skips = 0
 
     while len(image_urls) + skips < max_images:
+        print(f"Scrolling")
         scroll_down(driver)
 
-        thumbnails = driver.find_elements(By.CSS_SELECTOR, '.rg_i, .Q4LuWd')
+        thumbnails = driver.find_elements(By.CSS_SELECTOR, '.rg_i, .Q4LuWd, H8Rx8c')
         for img in thumbnails[len(image_urls) + skips:max_images]:
+
+            print(f"Getting URL")
+
             try:
                 img.click()
                 time.sleep(delay)
@@ -37,6 +42,7 @@ def get_images_from_google(driver, delay, max_images):
                     image_urls.add(image.get_attribute('src'))
                     print(f"Found {len(image_urls)}")
 
+        print(f"Done Scrolling")
     return image_urls
 
 def download_image(download_path, url, file_name):
@@ -75,6 +81,10 @@ driver = webdriver.Chrome(options=options)
 # Open the Google Images search page with the provided search query
 search_url = f"https://www.google.com/search?q={search_query}&tbm=isch"
 driver.get(search_url)
+
+print(f"Got Here")
+
+input_break = input()
 
 # Perform image scraping and downloading
 urls = get_images_from_google(driver, 2, 5)
