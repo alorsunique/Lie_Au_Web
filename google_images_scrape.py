@@ -6,6 +6,9 @@ from pathlib import Path
 
 import requests
 from PIL import Image
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 script_path = Path(__file__).resolve()
 project_dir = script_path.parent
@@ -13,11 +16,6 @@ os.chdir(project_dir)
 
 with open("Resources_Path.txt", "r") as resources_text:
     resources_dir = Path(str(resources_text.readline()).replace('"', ''))
-
-from selenium import webdriver
-
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 
 
 def get_image_url(driver, search_query, thumbnail_selector, image_selector, max_url_count):
@@ -38,7 +36,7 @@ def get_image_url(driver, search_query, thumbnail_selector, image_selector, max_
 
         try:
             thumbnail.click()
-            time.sleep(4)
+            time.sleep(3)
         except:
             continue
 
@@ -56,12 +54,10 @@ def get_image_url(driver, search_query, thumbnail_selector, image_selector, max_
             if len(image_url_list) >= max_url_count:
                 break
 
-        time.sleep(2)
-
         if len(image_url_list) >= max_url_count:
             break
 
-    return (image_url_list)
+    return image_url_list
 
 
 def download_images(image_url_list, download_dir):
@@ -81,10 +77,11 @@ def download_images(image_url_list, download_dir):
 
             print("Success")
         except Exception as e:
-            print('FAILED -', e)
+            print('Fail -', e)
 
 
-search_query = input("Enter your Google Images search query: ")
+search_query = input("Enter Search Query: ")
+max_url_count = int(input("Enter Max URL Count: "))
 
 current_time = time.time()
 start_time = current_time
@@ -102,8 +99,6 @@ image_selector = ".sFlh5c.pT0Scc.iPVvYb"
 driver_options = Options()
 driver_options.add_argument("--start-maximized")
 driver = webdriver.Chrome(options=driver_options)
-
-max_url_count = 20
 
 url_list = get_image_url(driver, search_query, thumbnail_selector, image_selector, max_url_count)
 download_images(url_list, session_dir)
