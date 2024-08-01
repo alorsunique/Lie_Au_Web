@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -47,57 +48,78 @@ for post in post_link_list:
     print(f"Working on link {count} / {post_link_list_length}")
 
     new_soup = BeautifulSoup(requests.get(post).text, 'html.parser')
-    user_name = str(new_soup.find('a', class_='post__user-name').text).strip()
 
-    user_name_dir = kumersu_resources_dir / user_name
+    try:
+        user_name = str(new_soup.find('a', class_='post__user-name').text).strip()
 
-    if not user_name_dir.exists():
-        os.makedirs(user_name_dir)
+        user_name_dir = kumersu_resources_dir / user_name
 
-    date_published = str(new_soup.find('div', class_='post__published').text).strip()
-    date_published = date_published.replace(":", '')
-    date_published = date_published.replace("-", '')
+        if not user_name_dir.exists():
+            os.makedirs(user_name_dir)
 
-    post_title = str(new_soup.find('h1', class_='post__title').text).strip()
-    post_text_content = str(new_soup.find('div', class_='post__content').text).strip()
+        date_published = str(new_soup.find('div', class_='post__published').text).strip()
+        date_published = date_published.replace(":", '')
+        date_published = date_published.replace("-", '')
 
-    image_links = new_soup.findAll('a', class_='fileThumb')
-    downloadable_image_links = []
+        post_title = str(new_soup.find('h1', class_='post__title').text).strip()
+        post_text_content = str(new_soup.find('div', class_='post__content').text).strip()
 
-    for link in image_links:
-        raw_link = link.get('href')
+        image_links = new_soup.findAll('a', class_='fileThumb')
+        downloadable_image_links = []
 
-        if raw_link.lower().endswith(image_extensions):
-            downloadable_image_links.append(raw_link)
+        for link in image_links:
+            raw_link = link.get('href')
 
-    if len(downloadable_image_links) > 0:
+            if raw_link.lower().endswith(image_extensions):
+                downloadable_image_links.append(raw_link)
 
-        post_dir = user_name_dir / date_published
+        inner_count = 0
+        downloable_length = len(downloadable_image_links)
 
-        if not post_dir.exists():
-            os.mkdir(post_dir)
 
-        info_text_path = post_dir / "Info.txt"
-        if info_text_path.exists():
-            os.remove(info_text_path)
+        if downloable_length > 0:
 
-        formatted_info = f"Title\n{post_title}\nContent\n{post_text_content}"
+            post_dir = user_name_dir / date_published
 
-        print(post_title)
+            if not post_dir.exists():
+                os.mkdir(post_dir)
 
-        with open(info_text_path, 'w', encoding='utf-8') as writer:
-            writer.write(formatted_info)
+            info_text_path = post_dir / "Info.txt"
+            if info_text_path.exists():
+                os.remove(info_text_path)
 
-        for image_link in downloadable_image_links:
-            parsed_url = urlparse(image_link).path.replace("/", '')
+            formatted_info = f"Title\n{post_title}\nContent\n{post_text_content}"
 
-            try:
-                image = Image.open(requests.get(image_link, stream=True).raw)
-                image_path = post_dir / parsed_url
-                image.save(image_path, format='JPEG', quality=100)
+            print(post_title)
 
-            except requests.exceptions.RequestException as error:
-                print(f"Cannot Fetch: {image_link}: {error}")
+            with open(info_text_path, 'w', encoding='utf-8') as writer:
+                writer.write(formatted_info)
 
-            except Exception as e:
-                print(f"Cannot Process: {image_link}: {error}")
+            for image_link in downloadable_image_links:
+                time.sleep(2.5)
+
+                inner_count += 1
+
+                print(f"Attempting inner link {inner_count} / {downloable_length}")
+
+                parsed_url = urlparse(image_link).path.replace("/", '')
+
+                try:
+                    image_path = post_dir / parsed_url
+                    if not image_path.exists():
+                        image = Image.open(requests.get(image_link, stream=True).raw)
+
+                        if image.mode != 'RGB':
+                            image = image.convert('RGB')
+
+                        image.save(image_path, format='JPEG', quality=100)
+                    else:
+                        print(f"Skipping")
+
+                except requests.exceptions.RequestException as error:
+                    print(f"Cannot Fetch: {image_link}: {error}")
+
+                except Exception as e:
+                    print(f"Cannot Process: {image_link}: {error}")
+    except:
+        print(f"Error")
