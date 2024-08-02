@@ -43,6 +43,8 @@ post_link_list_length = len(post_link_list)
 count = 0
 
 for post in post_link_list:
+    time.sleep(1.25)
+
     count += 1
 
     print(f"Working on link {count} / {post_link_list_length}")
