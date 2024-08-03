@@ -30,13 +30,18 @@ if __name__ == "__main__":
 
     os.chdir(project_dir)
 
-    with open("beibusosu_resource_path.txt", "r") as beibosusu_resources_text:
-        beibosusu_resources_dir = Path(str(beibosusu_resources_text.readline()).replace('"', ''))
+    with open("beibusosu_resource_path.txt", "r") as beibusosu_resources_text:
+        beibusosu_resources_dir = Path(str(beibusosu_resources_text.readline()).replace('"', ''))
+
+    catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
 
     url = str(input("URL: "))
 
     post_link_list = acquire_card_links(url)
+    post_link_length = len(post_link_list)
 
+    count = 0
     for link in post_link_list:
-        print(f"Working {link}")
-        beibusosu_single.main_image_box_download(link, beibosusu_resources_dir)
+        count += 1
+        print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
+        beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path)

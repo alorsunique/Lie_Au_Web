@@ -8,8 +8,10 @@ import requests
 from PIL import Image
 from bs4 import BeautifulSoup
 
+import beibusosu_catalog
 
-def main_image_box_download(url, resources_dir):
+
+def main_image_box_download(url, resources_dir, catalog_file):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
@@ -21,10 +23,23 @@ def main_image_box_download(url, resources_dir):
     left_middle_box = soup.find_all('div', class_='aside-setting__chapter')
     model_soup = left_middle_box[-1]
 
+    model_dict = resources_dir.catalog_read(catalog_file)
+
     model_list = []
     found_model = model_soup.find_all('a', class_='aside-setting__models-link')
     for model in found_model:
         model_list.append(model.text.strip())
+
+    copy_model_list = model_list.copy()
+    for copy_model in copy_model_list:
+        if not copy_model in model_dict:
+            beibusosu_catalog.add_model(catalog_file, copy_model, 0)
+            model_list.remove(copy_model)
+        else:
+            if not model_dict[copy_model] == 1:
+                model_list.remove(copy_model)
+
+    print(f"Final Model List: {model_list}")
 
     for model in model_list:
         model_dir = resources_dir / model
@@ -43,7 +58,6 @@ def main_image_box_download(url, resources_dir):
 
     count = 0
     for image_link in image_link_list:
-        time.sleep(1.25)
 
         mod_time = publish_date_object + count * timedelta(seconds=1)
         mod_time_string = mod_time.strftime("%Y%m%d_%H%M%S")
@@ -65,7 +79,8 @@ def main_image_box_download(url, resources_dir):
                     absent_condition = True
 
             if absent_condition:
-                print("Some model copy missing")
+                print("Missing copy")
+                time.sleep(1)
                 image = Image.open(requests.get(image_link, stream=True).raw)
 
                 if image.mode != 'RGB':
@@ -103,6 +118,8 @@ if __name__ == "__main__":
     with open("beibusosu_resource_path.txt", "r") as beibusosu_resources_text:
         beibusosu_resources_dir = Path(str(beibusosu_resources_text.readline()).replace('"', ''))
 
+    catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
+
     url = str(input("URL: "))
 
-    main_image_box_download(url, beibusosu_resources_dir)
+    main_image_box_download(url, beibusosu_resources_dir, catalog_path)
