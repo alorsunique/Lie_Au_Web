@@ -121,7 +121,7 @@ for post in post_link_list:
                 except requests.exceptions.RequestException as error:
                     print(f"Cannot Fetch: {image_link}: {error}")
 
-                except Exception as e:
+                except Exception as error:
                     print(f"Cannot Process: {image_link}: {error}")
     except:
         print(f"Error")
