@@ -23,7 +23,7 @@ def main_image_box_download(url, resources_dir, catalog_file):
     left_middle_box = soup.find_all('div', class_='aside-setting__chapter')
     model_soup = left_middle_box[-1]
 
-    model_dict = resources_dir.catalog_read(catalog_file)
+    model_dict = beibusosu_catalog.catalog_read(catalog_file)
 
     model_list = []
     found_model = model_soup.find_all('a', class_='aside-setting__models-link')
