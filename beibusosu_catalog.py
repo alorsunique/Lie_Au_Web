@@ -19,7 +19,7 @@ def catalog_read(catalog_file):
 
 def catalog_show(catalog_file):
     dataframe = pd.read_excel(catalog_file)
-    print(dataframe)
+    print(dataframe.to_string())
 
 
 def add_model(catalog_file, model_name, download_status):
