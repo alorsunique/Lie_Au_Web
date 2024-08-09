@@ -28,7 +28,6 @@ if __name__ == "__main__":
 
     exercise_soup = soup.find_all('tr', class_='exercise')
 
-
     count = 0
 
     question_string_list = []
@@ -39,15 +38,15 @@ if __name__ == "__main__":
         question_number = exercise_row.find('a').text
 
         question_content = exercise_row.find('textarea', class_='editable-attribute bound').text
-        #print(f"\nQuestion {question_number}\n{question_content}")
-
         question_string += f"Question {question_number}\n{question_content}\n\n\n"
 
-        if count == 5:
+        if count == 10:
             question_string_list.append(question_string)
-            print("Resetting String")
             question_string = ""
             count = 0
+
+    if not question_string == "":
+        question_string_list.append(question_string)
 
     save_count = 0
     for entry in question_string_list:
