@@ -81,10 +81,18 @@ def article_box_download(url, resources_dir):
                         time.sleep(2)
                         image = Image.open(requests.get(image_link, stream=True).raw)
 
-                        if image.mode != 'RGB':
-                            image = image.convert('RGB')
+                        sourced_image_format = image.format
 
-                        image.save(image_path, format='JPEG', quality=100)
+                        if sourced_image_format == 'JPEG':
+                            image.save(image_path, format='JPEG', quality=100)
+                        elif sourced_image_format == 'PNG':
+                            image.save(image_path, format='PNG')
+                        elif sourced_image_format == 'GIF':
+                            image.save(image_path, format='GIF', save_all=True)
+                        elif sourced_image_format == 'WEBP':
+                            image.save(image_path, format='WEBP')
+                        else:
+                            image.save(image_path, format=sourced_image_format)
 
                         os.utime(image_path, (mod_time.timestamp(), mod_time.timestamp()))
 

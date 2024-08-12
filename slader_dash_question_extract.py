@@ -34,16 +34,20 @@ if __name__ == "__main__":
     question_string = ""
 
     for exercise_row in exercise_soup:
-        count += 1
-        question_number = exercise_row.find('a').text
+        td_soup = exercise_row.find_all('td')
+        if str(td_soup[1].text).strip() == "None":
 
-        question_content = exercise_row.find('textarea', class_='editable-attribute bound').text
-        question_string += f"Question {question_number}\n{question_content}\n\n\n"
+            count += 1
 
-        if count == 10:
-            question_string_list.append(question_string)
-            question_string = ""
-            count = 0
+            question_number = exercise_row.find('a').text
+
+            question_content = exercise_row.find('textarea', class_='editable-attribute bound').text
+            question_string += f"Question {question_number}\n{question_content}\n\n\n"
+
+            if count == 5:
+                question_string_list.append(question_string)
+                question_string = ""
+                count = 0
 
     if not question_string == "":
         question_string_list.append(question_string)
