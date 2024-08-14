@@ -3,8 +3,17 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 
+import pandas as pd
 import requests
 from PIL import Image
+
+
+def excel_create(excel_link_file):
+    if not excel_link_file.exists():
+        model_list = []
+        dataframe = pd.DataFrame(model_list, columns=['Link'])
+        dataframe.to_excel(excel_link_file, sheet_name='Links', index=False)
+
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
@@ -17,20 +26,25 @@ if __name__ == "__main__":
     with open("Resources_Path.txt", "r") as resources_text:
         resources_dir = Path(str(resources_text.readline()).replace('"', ''))
 
-    download_text_path = resources_dir / "Image Download Set.txt"
+    download_excel_pointer = resources_dir / "IDS_Pointer.txt"
 
-    with open(download_text_path, "r") as download_text:
-        download_links_list = [line.strip() for line in download_text.readlines()]
+    with open(download_excel_pointer, "r") as download_excel_pointer_text:
+        download_excel_path = Path(str(download_excel_pointer_text.readline()).replace('"', ''))
 
-    download_links_set = set(download_links_list)
+    excel_create(download_excel_path)
 
-    general_download_dir = resources_dir / "General Download"
+    dataframe = pd.read_excel(download_excel_path)
+
+    initial_link_list = dataframe['Link'].tolist()
+    initial_link_set = set(initial_link_list)
+
+    general_download_dir = resources_dir / "General Image Download"
     if not general_download_dir.exists():
         os.mkdir(general_download_dir)
 
-    for link in download_links_set:
-        print(link)
-        print(urlparse(link))
+    for link in initial_link_set:
+        print(f"Link {link}")
+        print(f"Parsed: {urlparse(link)}")
         parsed_url = urlparse(link).path.replace("/", '')
         output_name = f"{parsed_url}"
 
