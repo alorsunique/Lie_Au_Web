@@ -38,11 +38,13 @@ if __name__ == "__main__":
     initial_link_list = dataframe['Link'].tolist()
     initial_link_set = set(initial_link_list)
 
+    sorted_list = sorted(list(initial_link_set))
+
     general_download_dir = resources_dir / "General Image Download"
     if not general_download_dir.exists():
         os.mkdir(general_download_dir)
 
-    for link in initial_link_set:
+    for link in sorted_list:
         print(f"Link {link}")
         print(f"Parsed: {urlparse(link)}")
         parsed_url = urlparse(link).path.replace("/", '')
@@ -52,7 +54,7 @@ if __name__ == "__main__":
         if not image_path.exists():
 
             try:
-                time.sleep(2)
+                time.sleep(5)
                 image = Image.open(requests.get(link, stream=True).raw)
 
                 sourced_image_format = image.format
