@@ -11,6 +11,29 @@ from bs4 import BeautifulSoup
 import beibusosu_catalog
 
 
+def image_resize(image, min_size):
+    working_image = image
+
+    horizontal_size = working_image.size[0]
+    vertical_size = working_image.size[1]
+
+    min_pixel_size = min(working_image.size)
+
+    if min_pixel_size > min_size:
+        rescale_factor = min_pixel_size / min_size
+        new_horizontal = int(horizontal_size / rescale_factor)
+        new_vertical = int(vertical_size / rescale_factor)
+    else:
+        new_horizontal = horizontal_size
+        new_vertical = vertical_size
+
+    print(f"Source: {(horizontal_size, vertical_size)} | To Save: {(new_horizontal, new_vertical)}")
+
+    rescaled_image = working_image.resize((new_horizontal, new_vertical), Image.LANCZOS)
+    working_image.close()
+    return rescaled_image
+
+
 def main_image_box_download(url, resources_dir, catalog_file):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
@@ -87,12 +110,15 @@ def main_image_box_download(url, resources_dir, catalog_file):
                     if image.mode != 'RGB':
                         image = image.convert('RGB')
 
+                    to_save_image = image_resize(image, 1080)
+
                     for model in model_list:
                         model_dir = resources_dir / model
                         image_path = model_dir / output_name
 
                         if not image_path.exists():
-                            image.save(image_path, format='JPEG', quality=100)
+
+                            to_save_image.save(image_path, format='JPEG', quality=100)
                         else:
                             print(f"{image_link} | Already downloaded for {model}")
 

@@ -45,8 +45,8 @@ if __name__ == "__main__":
         os.mkdir(general_download_dir)
 
     for link in sorted_list:
-        print(f"Link {link}")
-        print(f"Parsed: {urlparse(link)}")
+        print(f"Link: {link}\n")
+        print(f"Parsed: {urlparse(link)}\n")
         parsed_url = urlparse(link).path.replace("/", '')
         output_name = f"{parsed_url}"
 
@@ -75,3 +75,6 @@ if __name__ == "__main__":
 
             except Exception as error:
                 print(f"Cannot Process: {link}: {error}")
+
+        else:
+            print("File already exists\n\n")
