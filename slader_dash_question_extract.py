@@ -20,7 +20,9 @@ if __name__ == "__main__":
         shutil.rmtree(slader_questions_dir)
     os.mkdir(slader_questions_dir)
 
-    local_HTML_path = Path(str(input("Local Path: ")).replace('"', ''))
+    slader_dashboard_point = resources_dir / "Slader_Pointer.txt"
+    with open(slader_dashboard_point, "r") as slader_pointer_text:
+        local_HTML_path = Path(str(slader_pointer_text.readline()).replace('"', ''))
 
     with open(local_HTML_path, 'r', errors="ignore") as local_HTML:
         content = local_HTML.read()  # Reads the local HTML file
