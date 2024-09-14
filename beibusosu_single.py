@@ -73,7 +73,9 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
                 os.makedirs(model_dir)
 
         main_image_box = soup.find_all('div', class_='box-massage')[0]
-        image_link_soup = main_image_box.find_all('a', class_='box-massage__card-link slideshowGalleryImage')
+
+        lead_image_link_soup = main_image_box.find_all('a', class_='box-massage__card-link')
+        # image_link_soup = main_image_box.find_all('a', class_='box-massage__card-link slideshowGalleryImage')
 
         source_site_text = main_image_box.find('a', class_='box-massage__head').get_text(strip=True)
         source_site_text = source_site_text.replace("Watch Full Scene at", "").strip()
@@ -82,8 +84,12 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         print(source_site_text)
 
         image_link_list = []
-        for link in image_link_soup:
+
+        for link in lead_image_link_soup:
             image_link_list.append(link.get('href'))
+
+        # for link in image_link_soup:
+        # image_link_list.append(link.get('href'))
 
         image_link_list_length = len(image_link_list)
 
@@ -131,7 +137,7 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
 
                         if not image_path.exists():
 
-                            to_save_image.save(image_path, format='JPEG', quality=90)
+                            to_save_image.save(image_path, format='JPEG', quality=85)
                         else:
                             print(f"{image_link} | Already downloaded for {model}")
 
@@ -146,7 +152,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
             except Exception as error:
                 print(f"Cannot Process: {image_link}: {error}")
 
-        print(f"Total Requested Size: {total_requested_size / (1024 * 1024)} MB")
+        print(f"Set Total Requested Size: {total_requested_size / (1024 * 1024)} MB")
+        return total_requested_size
     except:
         print("Elements not found")
 
@@ -171,5 +178,8 @@ if __name__ == "__main__":
         override = True
     else:
         override = False
+    total_requested_size = 0
 
-    main_image_box_download(url, beibusosu_resources_dir, catalog_path, override)
+    total_requested_size = main_image_box_download(url, beibusosu_resources_dir, catalog_path, override)
+
+    print(f"Final Size: {total_requested_size / (1024 * 1024)} MB")

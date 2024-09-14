@@ -47,7 +47,13 @@ if __name__ == "__main__":
     post_link_length = len(post_link_list)
 
     count = 0
+    total_requested_size = 0
     for link in post_link_list:
         count += 1
         print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
-        beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path, override)
+        set_size = beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path, override)
+        total_requested_size += set_size
+
+        print(f"Current Set Requested Size: {total_requested_size / (1024 * 1024)} MB")
+
+    print(f"Final Size: {total_requested_size / (1024 * 1024)} MB")
