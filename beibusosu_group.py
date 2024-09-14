@@ -36,6 +36,12 @@ if __name__ == "__main__":
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
 
     url = str(input("URL: "))
+    override_string = str(input("Override Input Y: ")).upper()
+
+    if override_string == "Y":
+        override = True
+    else:
+        override = False
 
     post_link_list = acquire_card_links(url)
     post_link_length = len(post_link_list)
@@ -44,4 +50,4 @@ if __name__ == "__main__":
     for link in post_link_list:
         count += 1
         print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
-        beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path)
+        beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path, override)

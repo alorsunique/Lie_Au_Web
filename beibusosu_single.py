@@ -34,7 +34,7 @@ def image_resize(image, min_size):
     return rescaled_image
 
 
-def main_image_box_download(url, resources_dir, catalog_file):
+def main_image_box_download(url, resources_dir, catalog_file, override):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
@@ -58,9 +58,10 @@ def main_image_box_download(url, resources_dir, catalog_file):
         for copy_model in copy_model_list:
             if not copy_model in model_dict:
                 beibusosu_catalog.add_model(catalog_file, copy_model, 0)
-                model_list.remove(copy_model)
+                if not override:
+                    model_list.remove(copy_model)
             else:
-                if not model_dict[copy_model] == 1:
+                if not model_dict[copy_model] == 1 and not override:
                     model_list.remove(copy_model)
 
         print(f"Final Model List: {model_list}")
@@ -74,6 +75,12 @@ def main_image_box_download(url, resources_dir, catalog_file):
         main_image_box = soup.find_all('div', class_='box-massage')[0]
         image_link_soup = main_image_box.find_all('a', class_='box-massage__card-link slideshowGalleryImage')
 
+        source_site_text = main_image_box.find('a', class_='box-massage__head').get_text(strip=True)
+        source_site_text = source_site_text.replace("Watch Full Scene at", "").strip()
+        source_site_text = source_site_text.replace(" ", "_")
+
+        print(source_site_text)
+
         image_link_list = []
         for link in image_link_soup:
             image_link_list.append(link.get('href'))
@@ -81,6 +88,7 @@ def main_image_box_download(url, resources_dir, catalog_file):
         image_link_list_length = len(image_link_list)
 
         count = 0
+        total_requested_size = 0
         for image_link in image_link_list:
 
             mod_time = publish_date_object + count * timedelta(seconds=1)
@@ -90,7 +98,7 @@ def main_image_box_download(url, resources_dir, catalog_file):
             print(f"{count}/{image_link_list_length} | Working: {image_link}")
 
             parsed_url = urlparse(image_link).path.replace("/", '')
-            output_name = f"{mod_time_string}_{parsed_url}"
+            output_name = f"{source_site_text}_{mod_time_string}_{parsed_url}"
 
             try:
                 absent_condition = False
@@ -105,6 +113,11 @@ def main_image_box_download(url, resources_dir, catalog_file):
                 if absent_condition:
                     print("Missing copy")
                     time.sleep(1)
+
+                    image_size = requests.head(image_link).headers.get('Content-Length', 0)
+                    print(f"Requested Size: {float(image_size) / (1024 * 1024)} MB")
+                    total_requested_size += float(image_size)
+
                     image = Image.open(requests.get(image_link, stream=True).raw)
 
                     if image.mode != 'RGB':
@@ -118,7 +131,7 @@ def main_image_box_download(url, resources_dir, catalog_file):
 
                         if not image_path.exists():
 
-                            to_save_image.save(image_path, format='JPEG', quality=100)
+                            to_save_image.save(image_path, format='JPEG', quality=90)
                         else:
                             print(f"{image_link} | Already downloaded for {model}")
 
@@ -132,6 +145,8 @@ def main_image_box_download(url, resources_dir, catalog_file):
 
             except Exception as error:
                 print(f"Cannot Process: {image_link}: {error}")
+
+        print(f"Total Requested Size: {total_requested_size / (1024 * 1024)} MB")
     except:
         print("Elements not found")
 
@@ -150,5 +165,11 @@ if __name__ == "__main__":
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
 
     url = str(input("URL: "))
+    override_string = str(input("Override Input Y: ")).upper()
 
-    main_image_box_download(url, beibusosu_resources_dir, catalog_path)
+    if override_string == "Y":
+        override = True
+    else:
+        override = False
+
+    main_image_box_download(url, beibusosu_resources_dir, catalog_path, override)
