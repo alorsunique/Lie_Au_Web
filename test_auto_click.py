@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
-
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 # Function to run Playwright with your existing browser profile
 def run_playwright(link, browser):
@@ -13,28 +13,36 @@ def run_playwright(link, browser):
 
     while count < 3:
 
-    # Open the page (same URL you want to automate)
-    page = browser.new_page()
-    page.goto(link)
+        # Open the page (same URL you want to automate)
+        page = browser.new_page()
+        page.goto(link)
 
-    time.sleep(15)
+        time.sleep(15)
 
-    # Wait for the button to become visible
-    page.wait_for_selector("button.upload-ai-solution.unbound", timeout=10000)
+        # Wait for the button to become visible
+        try:
+            page.wait_for_selector("button.upload-ai-solution.unbound", timeout=10000)
 
-    # Click the button
-    button = page.query_selector("button.upload-ai-solution.unbound")
-    if button:
-        button.click()
-        print("Button clicked successfully.")
-    else:
-        print("Button not found.")
+            print("Button found")
 
-    # Give some time for the action to complete (adjust as necessary)
+            # Click the button
+            #button = page.query_selector("button.upload-ai-solution.unbound")
+            #if button:
+                #button.click()
+                #print("Button clicked successfully.")
+            #else:
+                #print("Button not found.")
 
-    # Close the browser
+        except PlaywrightTimeoutError:
+            print("Button did not appear on the page within the timeout.")
 
-    count += 1
+        page.close()
+
+        # Give some time for the action to complete (adjust as necessary)
+
+        # Close the browser
+
+        count += 1
 
 
 if __name__ == "__main__":
