@@ -59,4 +59,4 @@ def track(url):
 
 
 if __name__ == "__main__":
-    track("https://kpopofficial.com/kpop-comeback-schedule-october-2024/#")
+    track("https://kpopofficial.com/kpop-comeback-schedule-november-2024/")
