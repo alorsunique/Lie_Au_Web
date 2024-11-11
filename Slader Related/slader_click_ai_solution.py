@@ -2,55 +2,75 @@ import os
 import time
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from datetime import datetime
+
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
 
 # Function to run Playwright with your existing browser profile
 def run_playwright(link, browser):
-    # Set up Playwright to use your existing user profile
 
+    print(f"Working on: {link}")
     count = 0
 
-    while count < 3:
+    present_button = True
 
-        # Open the page (same URL you want to automate)
+    while count < 3 and present_button:
+        print(f"Run {count+1}")
         page = browser.new_page()
         page.goto(link)
 
-        time.sleep(15)
-
         # Wait for the button to become visible
+        time.sleep(5)
+        print("Time Waiting: 5")
+        time.sleep(5)
+        print("Time Waiting: 10")
+        time.sleep(5)
+        print("Time Waiting: 15")
+        time.sleep(5)
+        print("Time Waiting: 20")
+        time.sleep(5)
+        print("Time Waiting: 25")
+        time.sleep(5)
+        print("Time Waiting: 30")
+
+
+
         try:
             page.wait_for_selector("button.upload-ai-solution.unbound", timeout=10000)
 
             print("Button found")
 
             # Click the button
-            #button = page.query_selector("button.upload-ai-solution.unbound")
-            #if button:
-                #button.click()
-                #print("Button clicked successfully.")
-            #else:
-                #print("Button not found.")
+            button = page.query_selector("button.upload-ai-solution.unbound")
+            if button:
+                button.click()
+                print("Button clicked successfully.")
+                time.sleep(30)
+                print("Waiting for button to respond. Additional Time Waiting: 30")
+            else:
+                print("Button not found.")
 
         except PlaywrightTimeoutError:
             print("Button did not appear on the page within the timeout.")
+            present_button = False
 
         page.close()
 
-        # Give some time for the action to complete (adjust as necessary)
-
-        # Close the browser
-
         count += 1
+
+    return None
 
 
 if __name__ == "__main__":
+    now = datetime.now()
+    start_time = now
+    current_time = now.strftime("%H:%M:%S")
+    print(f"Session Start Time: {current_time}")
+
+
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
-
-    print(f"Project directory: {project_dir}")
-
+    project_dir = script_path.parent.parent
     os.chdir(project_dir)
 
     with open("Resources_Path.txt", "r") as resources_text:
@@ -61,9 +81,9 @@ if __name__ == "__main__":
     with open(link_text_path, "r") as link_text:
         link_list = link_text.read().splitlines()
 
-    print(link_list)
-
     with sync_playwright() as p:
+
+        # Set up Playwright to use your existing user profile
         browser = p.chromium.launch_persistent_context(
             user_data_dir="C:/Users/User/AppData/Local/Google/Chrome/User Data",  # Adjust path as needed
             headless=False,  # Set to False so you can see the browser window
@@ -74,3 +94,9 @@ if __name__ == "__main__":
             run_playwright(link, browser)
 
         browser.close()
+
+    now = datetime.now()
+    finish_time = now
+    current_time = now.strftime("%H:%M:%S")
+    print(f"Session End Time: {current_time}")
+    print(f"Total Session Run Time: {finish_time - start_time}")

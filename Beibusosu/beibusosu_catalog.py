@@ -97,7 +97,7 @@ def flip_status(catalog_file, model_name):
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
+    project_dir = script_path.parent.parent
 
     print(f"Project directory: {project_dir}")
 

@@ -1,15 +1,11 @@
 import os
-import shutil
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
-
-    print(f"Project directory: {project_dir}")
-
+    project_dir = script_path.parent.parent
     os.chdir(project_dir)
 
     with open("Resources_Path.txt", "r") as resources_text:
@@ -30,21 +26,25 @@ if __name__ == "__main__":
     for exercise_row in exercise_soup:
         td_soup = exercise_row.find_all('td')
 
-        link_tag = td_soup[0].find('a')
-        link = link_tag['href'] if link_tag else None
+        if str(td_soup[1].text).strip() == "None":
 
-        if not link == None:
-            valid_links.append(link)
+            link_tag = td_soup[0].find('a')
+            link = link_tag['href'] if link_tag else None
+
+            if not link == None:
+                valid_links.append(link)
 
     print(valid_links)
+    print(len(valid_links))
 
     link_text_path = resources_dir / "Dashboard Links.txt"
 
     if link_text_path.exists():
         os.remove(link_text_path)
 
+    max_count = 25
+    trimmed_valid_links = valid_links[:max_count]
+
     with open(link_text_path, 'w') as text_file:
-        for link in valid_links:
+        for link in trimmed_valid_links:
             text_file.write(f"{link}\n")
-
-

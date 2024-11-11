@@ -9,7 +9,7 @@ import kumersu_single
 
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
+    project_dir = script_path.parent.parent
     os.chdir(project_dir)
 
     with open("kumersu_resource_path.txt", "r") as kumersu_resources_text:

@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     os.chdir(project_dir)
 
-    with open("Resources_Path.txt", "r") as resources_text:
+    with open("../Resources_Path.txt", "r") as resources_text:
         resources_dir = Path(str(resources_text.readline()).replace('"', ''))
 
     link_text_path = resources_dir / "Dashboard Links.txt"
