@@ -9,22 +9,13 @@ from playwright.sync_api import sync_playwright
 
 
 # Function to run Playwright with your existing browser profile
-def run_playwright(link, browser):
+def run_playwright(link, browser, link_count):
+    print(f"Link: {link_count + 1}")
     page = browser.new_page()
     page.goto(link)
 
-    time.sleep(5)
-    print("Time Waiting: 5")
-    time.sleep(5)
+    time.sleep(10)
     print("Time Waiting: 10")
-    time.sleep(5)
-    print("Time Waiting: 15")
-    time.sleep(5)
-    print("Time Waiting: 20")
-    time.sleep(5)
-    print("Time Waiting: 25")
-    time.sleep(5)
-    print("Time Waiting: 30")
 
     page.wait_for_load_state("load")
 
@@ -33,8 +24,9 @@ def run_playwright(link, browser):
 
     page.close()
 
-    return html_content
+    link_count += 1
 
+    return html_content, link_count
 
 if __name__ == "__main__":
     now = datetime.now()
@@ -63,8 +55,10 @@ if __name__ == "__main__":
             channel="chrome"  # Use the installed Chrome browser, not Chromium
         )
 
+        link_count = 0
+
         for link in link_list:
-            html_content = run_playwright(link, browser)
+            html_content, link_count = run_playwright(link, browser, link_count)
 
             soup = BeautifulSoup(html_content, "lxml")  # Creates soup object
             question_section = soup.find("section", class_="question__markdown")

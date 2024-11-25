@@ -8,7 +8,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 
 
 # Function to run Playwright with your existing browser profile
-def run_playwright(link, browser):
+def run_playwright(link, browser, link_count):
 
     print(f"Working on: {link}")
     count = 0
@@ -16,25 +16,13 @@ def run_playwright(link, browser):
     present_button = True
 
     while count < 3 and present_button:
-        print(f"Run {count+1}")
+        print(f"Link: {link_count + 1} | Run: {count+1}")
         page = browser.new_page()
         page.goto(link)
 
         # Wait for the button to become visible
-        time.sleep(5)
-        print("Time Waiting: 5")
-        time.sleep(5)
+        time.sleep(10)
         print("Time Waiting: 10")
-        time.sleep(5)
-        print("Time Waiting: 15")
-        time.sleep(5)
-        print("Time Waiting: 20")
-        time.sleep(5)
-        print("Time Waiting: 25")
-        time.sleep(5)
-        print("Time Waiting: 30")
-
-
 
         try:
             page.wait_for_selector("button.upload-ai-solution.unbound", timeout=10000)
@@ -46,8 +34,8 @@ def run_playwright(link, browser):
             if button:
                 button.click()
                 print("Button clicked successfully.")
-                time.sleep(30)
-                print("Waiting for button to respond. Additional Time Waiting: 30")
+                time.sleep(10)
+                print("Waiting for button to respond. Additional Time Waiting: 10")
             else:
                 print("Button not found.")
 
@@ -59,7 +47,8 @@ def run_playwright(link, browser):
 
         count += 1
 
-    return None
+    link_count += 1
+    return link_count
 
 
 if __name__ == "__main__":
@@ -90,8 +79,9 @@ if __name__ == "__main__":
             channel="chrome"  # Use the installed Chrome browser, not Chromium
         )
 
+        link_count = 0
         for link in link_list:
-            run_playwright(link, browser)
+            link_count = run_playwright(link, browser, link_count)
 
         browser.close()
 
