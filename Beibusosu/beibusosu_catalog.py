@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import time
+
 
 import pandas as pd
 
@@ -135,3 +137,4 @@ if __name__ == "__main__":
             flip_status(catalog_path, model_name)
         else:
             print("Did not catch that")
+        time.sleep(1)

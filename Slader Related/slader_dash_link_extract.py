@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if link_text_path.exists():
         os.remove(link_text_path)
 
-    max_count = 200
+    max_count = 100
     trimmed_valid_links = valid_links[:max_count]
 
     with open(link_text_path, 'w') as text_file:
