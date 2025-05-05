@@ -38,6 +38,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
+    print(soup)
+
     try:
         left_top_box = soup.findAll('li', class_='aside-setting__views-item')
         publish_date = left_top_box[1].text.strip()

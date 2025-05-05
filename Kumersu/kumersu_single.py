@@ -9,31 +9,93 @@ from PIL import Image
 from bs4 import BeautifulSoup
 
 
+
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+
+
+
+
+
 def article_box_download(url, resources_dir):
+
+    print("1")
+
+    chrome_options = Options()
+    print("1.2")
+    chrome_options.add_argument("--headless")  # Run headless Chrome
+    print("1.3")
+    chrome_options.add_argument("--no-sandbox")
+    print("1.4")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    print("1.5")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    print("2")
+
+    driver.get(url)
+
+    print("3")
+
+    # Wait for the page to fully render
+    time.sleep(3)  # Adjust the sleep time as necessary.
+    page_source = driver.page_source
+    driver.quit()  # Don't forget to close the driver
+
+    print("4")
+
     request_result = requests.get(url)  # Request the url
-    soup = BeautifulSoup(request_result.text, 'html.parser')
+
+    print(request_result)
+    print(request_result.text)
+
+    #soup = BeautifulSoup(request_result.text, 'html.parser') \
+    soup = BeautifulSoup(page_source, 'html.parser')
+
+    print(soup)
 
     image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
 
     try:
-        username = str(soup.find('a', class_='post__user-name').text).strip()
+        print("Got Here")
+        username = str(soup.find('div', class_='post__user').text).strip()
         username_dir = resources_dir / username
+
+        print(username)
 
         if not username_dir.exists():
             os.makedirs(username_dir)
 
         date_published = str(soup.find('div', class_='post__published').text).strip()
+        print(date_published)
         date_published = date_published.replace(":", '')
+        print(date_published)
         date_published = date_published.replace("-", '')
+        print(date_published)
         date_published = date_published.replace(" ", '_')
+        print(date_published)
 
-        time_format = "Published_%Y%m%d_%H%M%S"
-        publish_date_object = datetime.strptime(date_published, time_format)
 
         print(date_published)
 
+        time_format = "Published_%Y%m%d"
+
+        print(time_format)
+
+        publish_date_object = datetime.strptime(date_published, time_format)
+
+        print(publish_date_object)
+
         post_title = str(soup.find('h1', class_='post__title').text).strip()
         post_content_text = str(soup.find('div', class_='post__content').text).strip()
+
+        print(post_title)
+        print(post_content_text)
 
         image_link_soup = soup.findAll('a', class_='fileThumb')
         downloadable_image_links = []

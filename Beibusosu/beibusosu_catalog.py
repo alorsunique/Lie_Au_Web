@@ -97,6 +97,41 @@ def flip_status(catalog_file, model_name):
     dataframe.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
+
+def clear_extra(catalog_file, beibusosu_resources_dir):
+    dataframe = pd.read_excel(catalog_file)
+
+    folder_model_list = []
+
+    for entry in beibusosu_resources_dir.iterdir():
+        if entry.is_dir():
+            folder_model_list.append(entry.name)
+
+
+
+    drop_index_list = []
+
+    for index, row in dataframe.iterrows():
+        current_model = row["Model"]
+        if current_model not in folder_model_list:
+            drop_index_list.append(index)
+
+    dataframe = dataframe.drop(drop_index_list)
+
+    if catalog_file.exists():
+        os.remove(catalog_file)
+
+    dataframe = pd.DataFrame(dataframe, columns=['Model', 'Download Status'])
+    dataframe.to_excel(catalog_file, sheet_name='Catalog', index=False)
+
+
+    print(dataframe)
+
+
+
+
+
+
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
     project_dir = script_path.parent.parent
@@ -121,6 +156,8 @@ if __name__ == "__main__":
         print("1. Add Model")
         print("2. Remove Model")
         print("3. Flip Status")
+        print("4. Clear Extra")
+
 
         choice = str(input("Choice: "))
 
@@ -135,6 +172,8 @@ if __name__ == "__main__":
         elif choice == "3":
             model_name = str(input("Input Model Name: "))
             flip_status(catalog_path, model_name)
+        elif choice == "4":
+            clear_extra(catalog_path, beibusosu_resources_dir)
         else:
             print("Did not catch that")
         time.sleep(1)
