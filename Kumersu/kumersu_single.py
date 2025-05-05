@@ -103,7 +103,7 @@ def article_box_download(url, resources_dir, webdriver_instance):
 
                 if not image_path.exists():
                     try:
-                        time.sleep(2)
+                        time.sleep(5)
                         print(f"Requesting Image")
                         image = Image.open(requests.get(image_link, stream=True).raw)
 
@@ -114,7 +114,7 @@ def article_box_download(url, resources_dir, webdriver_instance):
 
                         if sourced_image_format == 'JPEG':
                             to_save_image = image_resize(image, 1080)
-                            to_save_image.save(image_path, format='JPEG', quality=100)
+                            to_save_image.save(image_path, format='JPEG', quality=85)
                         elif sourced_image_format == 'PNG':
                             to_save_image = image_resize(image, 1080)
                             to_save_image.save(image_path, format='PNG')
