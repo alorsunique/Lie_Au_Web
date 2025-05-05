@@ -7,95 +7,70 @@ from urllib.parse import urlparse
 import requests
 from PIL import Image
 from bs4 import BeautifulSoup
-
-
-
-
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+def image_resize(image, min_size):
+    working_image = image
+
+    horizontal_size = working_image.size[0]
+    vertical_size = working_image.size[1]
+
+    min_pixel_size = min(working_image.size)
+
+    if min_pixel_size > min_size:
+        rescale_factor = min_pixel_size / min_size
+        new_horizontal = int(horizontal_size / rescale_factor)
+        new_vertical = int(vertical_size / rescale_factor)
+    else:
+        new_horizontal = horizontal_size
+        new_vertical = vertical_size
+
+    print(f"Source: {(horizontal_size, vertical_size)} | To Save: {(new_horizontal, new_vertical)}")
+
+    rescaled_image = working_image.resize((new_horizontal, new_vertical), Image.LANCZOS)
+    working_image.close()
+    return rescaled_image
 
 
-
-
-
-def article_box_download(url, resources_dir):
-
-    print("1")
-
-    chrome_options = Options()
-    print("1.2")
-    chrome_options.add_argument("--headless")  # Run headless Chrome
-    print("1.3")
-    chrome_options.add_argument("--no-sandbox")
-    print("1.4")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    print("1.5")
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-    print("2")
-
+def article_box_download(url, resources_dir, webdriver_instance):
+    driver = webdriver_instance
     driver.get(url)
 
-    print("3")
-
-    # Wait for the page to fully render
-    time.sleep(3)  # Adjust the sleep time as necessary.
+    print("Waiting for page")
+    time.sleep(5)
     page_source = driver.page_source
-    driver.quit()  # Don't forget to close the driver
 
-    print("4")
-
-    request_result = requests.get(url)  # Request the url
-
-    print(request_result)
-    print(request_result.text)
-
-    #soup = BeautifulSoup(request_result.text, 'html.parser') \
     soup = BeautifulSoup(page_source, 'html.parser')
 
-    print(soup)
+    post_number = str(url).split("/")[-1]
 
     image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
 
     try:
-        print("Got Here")
+
         username = str(soup.find('div', class_='post__user').text).strip()
         username_dir = resources_dir / username
 
-        print(username)
+        print(f"Username: {username}")
 
         if not username_dir.exists():
             os.makedirs(username_dir)
 
         date_published = str(soup.find('div', class_='post__published').text).strip()
-        print(date_published)
         date_published = date_published.replace(":", '')
-        print(date_published)
         date_published = date_published.replace("-", '')
-        print(date_published)
         date_published = date_published.replace(" ", '_')
-        print(date_published)
-
-
-        print(date_published)
 
         time_format = "Published_%Y%m%d"
 
-        print(time_format)
-
         publish_date_object = datetime.strptime(date_published, time_format)
-
-        print(publish_date_object)
 
         post_title = str(soup.find('h1', class_='post__title').text).strip()
         post_content_text = str(soup.find('div', class_='post__content').text).strip()
-
-        print(post_title)
-        print(post_content_text)
 
         image_link_soup = soup.findAll('a', class_='fileThumb')
         downloadable_image_links = []
@@ -109,21 +84,9 @@ def article_box_download(url, resources_dir):
 
         if downloadable_length > 0:
 
-            post_dir = username_dir / date_published
+            formatted_info = f"\nTitle\n{post_title}\nContent\n{post_content_text}\n"
 
-            if not post_dir.exists():
-                os.mkdir(post_dir)
-
-            info_text_path = post_dir / "Info.txt"
-            if info_text_path.exists():
-                os.remove(info_text_path)
-
-            formatted_info = f"Title\n{post_title}\nContent\n{post_content_text}"
-
-            print(post_title)
-
-            with open(info_text_path, 'w', encoding='utf-8') as writer:
-                writer.write(formatted_info)
+            print(formatted_info)
 
             for image_link in downloadable_image_links:
                 mod_time = publish_date_object + count * timedelta(seconds=1)
@@ -134,25 +97,32 @@ def article_box_download(url, resources_dir):
                 print(f"Attempting inner link | {count} / {downloadable_length}")
 
                 parsed_url = urlparse(image_link).path.replace("/", '')
-                output_name = f"{mod_time_string}_{parsed_url}"
+                output_name = f"{mod_time_string}_{post_number}_{parsed_url}"
 
-                image_path = post_dir / output_name
+                image_path = username_dir / output_name
 
                 if not image_path.exists():
                     try:
                         time.sleep(2)
+                        print(f"Requesting Image")
                         image = Image.open(requests.get(image_link, stream=True).raw)
+
+                        if image.mode != 'RGB':
+                            image = image.convert('RGB')
 
                         sourced_image_format = image.format
 
                         if sourced_image_format == 'JPEG':
-                            image.save(image_path, format='JPEG', quality=100)
+                            to_save_image = image_resize(image, 1080)
+                            to_save_image.save(image_path, format='JPEG', quality=100)
                         elif sourced_image_format == 'PNG':
-                            image.save(image_path, format='PNG')
+                            to_save_image = image_resize(image, 1080)
+                            to_save_image.save(image_path, format='PNG')
                         elif sourced_image_format == 'GIF':
                             image.save(image_path, format='GIF', save_all=True)
                         elif sourced_image_format == 'WEBP':
-                            image.save(image_path, format='WEBP')
+                            to_save_image = image_resize(image, 1080)
+                            to_save_image.save(image_path, format='WEBP')
                         else:
                             image.save(image_path, format=sourced_image_format)
 
@@ -185,4 +155,13 @@ if __name__ == "__main__":
 
     url = str(input("URL: "))
 
-    article_box_download(url, kumersu_resources_dir)
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run headless Chrome
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    print("Loading Webdriver")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+    article_box_download(url, kumersu_resources_dir, driver)
+
+    driver.quit()
