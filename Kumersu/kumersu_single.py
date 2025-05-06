@@ -84,9 +84,11 @@ def article_box_download(url, resources_dir, webdriver_instance):
 
         if downloadable_length > 0:
 
+            publish_date_string = publish_date_object.strftime("%Y%m%d_%H%M%S")
             formatted_info = f"\nTitle\n{post_title}\nContent\n{post_content_text}\n"
 
             print(formatted_info)
+            print(f"Publication Date: {publish_date_string}\n\n")
 
             for image_link in downloadable_image_links:
                 mod_time = publish_date_object + count * timedelta(seconds=1)
