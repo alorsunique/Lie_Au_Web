@@ -1,22 +1,23 @@
+# This is an auto clicker
+# It should click the generate solution button as long as it is present
+
 import os
 import time
-from pathlib import Path
-
 from datetime import datetime
+from pathlib import Path
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 
 # Function to run Playwright with your existing browser profile
 def run_playwright(link, browser, link_count):
-
     print(f"Working on: {link}")
     count = 0
 
     present_button = True
 
     while count < 3 and present_button:
-        print(f"Link: {link_count + 1} | Run: {count+1}")
+        print(f"Link: {link_count + 1} | Run: {count + 1}")
         page = browser.new_page()
         page.goto(link)
 
@@ -56,7 +57,6 @@ if __name__ == "__main__":
     start_time = now
     current_time = now.strftime("%H:%M:%S")
     print(f"Session Start Time: {current_time}")
-
 
     script_path = Path(__file__).resolve()
     project_dir = script_path.parent.parent

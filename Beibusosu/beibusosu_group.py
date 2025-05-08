@@ -1,3 +1,5 @@
+# Group download of beibusosu
+
 import os
 from pathlib import Path
 
@@ -7,6 +9,7 @@ from bs4 import BeautifulSoup
 import beibusosu_single
 
 
+# Get the links from the cards
 def acquire_card_links(url):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
@@ -30,7 +33,7 @@ if __name__ == "__main__":
 
     os.chdir(project_dir)
 
-    with open("beibusosu_resource_path.txt", "r") as beibusosu_resources_text:
+    with open("Beibusosu_Resource_Path.txt", "r") as beibusosu_resources_text:
         beibusosu_resources_dir = Path(str(beibusosu_resources_text.readline()).replace('"', ''))
 
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
@@ -48,6 +51,8 @@ if __name__ == "__main__":
 
     count = 0
     total_requested_size = 0
+
+    # Go through each link found in the card section
     for link in post_link_list:
         count += 1
         print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
@@ -57,7 +62,7 @@ if __name__ == "__main__":
 
             print(f"Current Set Requested Size: {total_requested_size / (1024 * 1024)} MB")
         except:
+            print("Some error occured")
             pass
-
 
     print(f"Final Size: {total_requested_size / (1024 * 1024)} MB")

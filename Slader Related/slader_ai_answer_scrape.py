@@ -1,3 +1,5 @@
+# This scrapes the answer generated
+
 import os
 import time
 from datetime import datetime
@@ -27,6 +29,7 @@ def run_playwright(link, browser, link_count):
     link_count += 1
 
     return html_content, link_count
+
 
 if __name__ == "__main__":
     now = datetime.now()

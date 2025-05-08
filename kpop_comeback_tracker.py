@@ -1,3 +1,9 @@
+# For tracking K POP comebacks
+# Data taken from kpopofficial.com
+
+import time
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -59,4 +65,27 @@ def track(url):
 
 
 if __name__ == "__main__":
-    track("https://kpopofficial.com/kpop-comeback-schedule-november-2024/")
+
+    # Get the current month and year
+    datetime_object = datetime.fromtimestamp(time.time())
+
+    current_month = datetime_object.month
+    current_year = datetime_object.year
+
+    month_map = {
+        1: "january",
+        2: "february",
+        3: "march",
+        4: "april",
+        5: "may",
+        6: "june",
+        7: "july",
+        8: "august",
+        9: "september",
+        10: "october",
+        11: "november",
+        12: "december"
+    }
+
+    formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
+    track(formatted_url)

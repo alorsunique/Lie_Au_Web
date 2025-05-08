@@ -146,10 +146,10 @@ if __name__ == "__main__":
     project_dir = script_path.parent.parent
     os.chdir(project_dir)
 
-    with open("kumersu_resource_path.txt", "r") as kumersu_resources_text:
+    with open("Kumersu_Resource_Path.txt", "r") as kumersu_resources_text:
         kumersu_resources_dir = Path(str(kumersu_resources_text.readline()).replace('"', ''))
 
-    with open("kumersu_key.txt", "r") as key_text:
+    with open("Kumersu_Key.txt", "r") as key_text:
         key_content = [line.strip() for line in key_text.readlines()]
 
     print(key_content)

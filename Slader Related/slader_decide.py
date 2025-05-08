@@ -1,19 +1,10 @@
-import pandas as pd
-
+# This script utilizes GPT models in deciding which of the three generated solutions is the best answer to the question
 
 import os
-import time
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-
 import pandas as pd
-
-
 from openai import AzureOpenAI
-
-from bs4 import BeautifulSoup
 
 if __name__ == "__main__":
 
@@ -35,7 +26,6 @@ if __name__ == "__main__":
     endpoint = api_detail_list[1]
     version = api_detail_list[2]
     deployment_name = api_detail_list[3]
-
 
     df = pd.read_excel(output_path)
 
@@ -67,15 +57,12 @@ if __name__ == "__main__":
             If the best solution still require correction, return the corrected solution in the same format as it was provided.
             """
 
-
-
     for question_answer_set in data_as_lists:
         client = AzureOpenAI(
             azure_endpoint=endpoint,
             api_key=API,
             api_version=version,
         )
-
 
         message_list = [
             {
@@ -128,4 +115,3 @@ if __name__ == "__main__":
         print(response_message.content)
 
         print("\n\n\n\n\n----------------------------------------------------------------")
-
