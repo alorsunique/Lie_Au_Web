@@ -17,8 +17,8 @@ def catalog_create(catalog_file):
 
 
 def catalog_read(catalog_file):
-    dataframe = pd.read_excel(catalog_file)
-    model_dict = dict(zip(dataframe['Model'], dataframe['Download Status']))
+    df = pd.read_excel(catalog_file)
+    model_dict = dict(zip(df['Model'], df['Download Status']))
     return model_dict
 
 

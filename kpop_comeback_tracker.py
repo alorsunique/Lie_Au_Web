@@ -6,13 +6,16 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
-
+import os
+import pandas as pd
+from pathlib import  Path
 
 def track(url):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
     try:
+        inner_global_info_list = []
         day_content_soup = soup.findAll('figure', class_='wp-block-table is-style-stripes')
 
         for day_content in day_content_soup:
@@ -20,6 +23,8 @@ def track(url):
             tr_content_soup = body_content_soup[0].findAll('tr')
 
             for tr_content in tr_content_soup:
+
+                print(f"----------------------\n{tr_content}\n------------------\n\n")
 
                 date = ""
                 time = ""
@@ -57,8 +62,13 @@ def track(url):
                 if not date == "" and not artist == "":
                     try:
                         print(f"{date} | {time} | {artist} | {content_list}")
+                        info_list = [date,time,artist,content_list]
+                        print(info_list)
+                        inner_global_info_list.append(info_list)
                     except:
                         pass
+
+        return inner_global_info_list
 
     except:
         pass
@@ -87,5 +97,25 @@ if __name__ == "__main__":
         12: "december"
     }
 
+    column_label_list = ["Day", "Time", "Artist", "Sources"]
+
+
+
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
-    track(formatted_url)
+    print(formatted_url)
+    global_info_list = track(formatted_url)
+
+    print(global_info_list)
+    df = pd.DataFrame(global_info_list, columns=column_label_list)
+    print(df)
+
+
+
+    script_path = Path(__file__).resolve()
+    project_dir = script_path.parent
+
+    catalog_file = project_dir / "kpop_output.xlsx"
+    if catalog_file.exists():
+        os.remove(catalog_file)
+
+    df.to_excel(catalog_file, sheet_name='Comeback', index=False)
