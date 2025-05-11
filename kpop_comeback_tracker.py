@@ -1,14 +1,15 @@
 # For tracking K POP comebacks
 # Data taken from kpopofficial.com
 
+import os
 import time
 from datetime import datetime
+from pathlib import Path
 
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-import os
-import pandas as pd
-from pathlib import  Path
+
 
 def track(url):
     request_result = requests.get(url)  # Request the url
@@ -23,9 +24,6 @@ def track(url):
             tr_content_soup = body_content_soup[0].findAll('tr')
 
             for tr_content in tr_content_soup:
-
-                print(f"----------------------\n{tr_content}\n------------------\n\n")
-
                 date = ""
                 time = ""
                 artist = ""
@@ -62,8 +60,7 @@ def track(url):
                 if not date == "" and not artist == "":
                     try:
                         print(f"{date} | {time} | {artist} | {content_list}")
-                        info_list = [date,time,artist,content_list]
-                        print(info_list)
+                        info_list = [date, time, artist, content_list]
                         inner_global_info_list.append(info_list)
                     except:
                         pass
@@ -97,25 +94,23 @@ if __name__ == "__main__":
         12: "december"
     }
 
-    column_label_list = ["Day", "Time", "Artist", "Sources"]
-
-
+    column_label_list = ["Day", "Time", "Artist", "Relevant Info Site"]
 
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
     print(formatted_url)
-    global_info_list = track(formatted_url)
 
-    print(global_info_list)
-    df = pd.DataFrame(global_info_list, columns=column_label_list)
-    print(df)
-
-
+    page_info_list = track(formatted_url)
+    df = pd.DataFrame(page_info_list, columns=column_label_list)
 
     script_path = Path(__file__).resolve()
     project_dir = script_path.parent
 
-    catalog_file = project_dir / "kpop_output.xlsx"
-    if catalog_file.exists():
-        os.remove(catalog_file)
+    with open("Resources_Path.txt", "r") as resources_text:
+        resources_dir = Path(str(resources_text.readline()).replace('"', ''))
 
-    df.to_excel(catalog_file, sheet_name='Comeback', index=False)
+    catalog_path = resources_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
+
+    if catalog_path.exists():
+        os.remove(catalog_path)
+
+    df.to_excel(catalog_path, sheet_name='Comeback', index=False)

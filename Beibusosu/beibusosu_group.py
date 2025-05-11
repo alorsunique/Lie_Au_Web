@@ -38,31 +38,54 @@ if __name__ == "__main__":
 
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
 
-    url = str(input("URL: "))
-    override_string = str(input("Override Input Y: ")).upper()
+    workable_group_list = []
 
-    if override_string == "Y":
-        override = True
-    else:
-        override = False
+    while True:
+        print("\n--------------------------------\n")
 
-    post_link_list = acquire_card_links(url)
-    post_link_length = len(post_link_list)
+        print("0. Exit Loop")
+        print("1. Add Group")
 
-    count = 0
-    total_requested_size = 0
+        choice = str(input("Choice: "))
 
-    # Go through each link found in the card section
-    for link in post_link_list:
-        count += 1
-        print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
-        try:
-            set_size = beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path, override)
-            total_requested_size += set_size
+        if choice == "0":
+            break
+        elif choice == "1":
+            url = str(input("URL: "))
+            override_string = str(input("Override Input Y: ")).upper()
 
-            print(f"Current Set Requested Size: {total_requested_size / (1024 * 1024)} MB")
-        except:
-            print("Some error occured")
-            pass
+            if override_string == "Y":
+                override = True
+            else:
+                override = False
 
-    print(f"Final Size: {total_requested_size / (1024 * 1024)} MB")
+            workable_element = (url, override)
+            workable_group_list.append(workable_element)
+        else:
+            print("Did not catch that")
+
+    for element in workable_group_list:
+        url = element[0]
+        override = element[1]
+
+        post_link_list = acquire_card_links(url)
+        post_link_length = len(post_link_list)
+
+        count = 0
+        total_requested_size = 0
+
+        # Go through each link found in the card section
+        for link in post_link_list:
+            count += 1
+            print(f"\nSet {count}/{post_link_length} | Working on set {link}\n")
+            try:
+                set_size = beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path,
+                                                                    override)
+                total_requested_size += set_size
+
+                print(f"Current Set Requested Size: {total_requested_size / (1024 * 1024)} MB")
+            except:
+                print("Some error occured")
+                pass
+
+        print(f"Final Size: {total_requested_size / (1024 * 1024)} MB")

@@ -2,62 +2,58 @@
 
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
-import requests
-from bs4 import BeautifulSoup
-import os
 import pandas as pd
-from pathlib import  Path
-
 
 
 def day_forward(date):
     today = date
     tomorrow = date + timedelta(days=1)
-    the_day_after = date + timedelta(days=2)
+    day_after_tomorrow = date + timedelta(days=2)
 
-    print(tomorrow.day)
-    print(the_day_after.day)
-
-    day_list = [today, tomorrow,the_day_after]
+    day_list = [today, tomorrow, day_after_tomorrow]
 
     return day_list
 
 
-
 if __name__ == "__main__":
-
 
     script_path = Path(__file__).resolve()
     project_dir = script_path.parent
 
-    catalog_file = project_dir / "kpop_output.xlsx"
+    with open("Resources_Path.txt", "r") as resources_text:
+        resources_dir = Path(str(resources_text.readline()).replace('"', ''))
 
-    df = pd.read_excel(catalog_file)
+    # Read the text file containing the valid artist
+    artist_list_path = resources_dir / "Artists_List.txt"
 
-    print(df)
+    with open(artist_list_path, "r") as artist_text:
+        content = artist_text.read()
 
-    select_artist_list = ["i-dle"]
+    content_split = content.split('\n')
 
-    print(df.loc[df['Artist'].isin(select_artist_list)])
+    valid_artist_list = []
+    for entry in content_split:
+        formatted_entry = entry.lower().strip()
 
-    select_day_list = ['May 2, 2025', 'May 7, 2025', 'May 9, 2025', 'May 19, 2025']
+        if formatted_entry:
+            valid_artist_list.append(formatted_entry)
 
-    print(df.loc[df['Day'].isin(select_day_list)])
+    # Get the current month and year
+    datetime_object = datetime.fromtimestamp(time.time())
 
-    print("\n\n\n")
+    current_month = datetime_object.month
+    current_year = datetime_object.year
 
-    print(df.loc[(df['Day'].isin(select_day_list)) & (df['Artist'].isin(select_artist_list)) ])
+    catalog_path = resources_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
+
+    df = pd.read_excel(catalog_path)
 
     current_time = time.time()
-    print(current_time)
-
     datetime_object = datetime.fromtimestamp(current_time)
-    print(datetime_object)
 
-    print(datetime_object.year)
-    print(datetime_object.month)
-    print(datetime_object.day)
+    projected_day_list = day_forward(datetime_object)
 
     reverse_month_map = {
         1: "January",
@@ -74,18 +70,63 @@ if __name__ == "__main__":
         12: "December"
     }
 
-
-    projected_day_list = day_forward(datetime_object)
-
     day_string_list = []
-
     for entry in projected_day_list:
         formatted_day = f"{reverse_month_map[entry.month]} {entry.day}, {entry.year}"
-
-        print(formatted_day)
-
         day_string_list.append(formatted_day)
 
-    filtered_df = df.loc[(df['Day'].isin(day_string_list)) ]
+    month_comeback_df = df.loc[(df['Artist'].str.lower().isin(valid_artist_list))]
 
-    print(filtered_df)
+    print(month_comeback_df)
+
+    near_day_comeback_df = df.loc[
+        (df['Day'].isin(day_string_list))
+        & (df['Artist'].str.lower().isin(valid_artist_list))
+        ]
+
+    print(near_day_comeback_df)
+
+    string_list = []
+
+    for index, row in month_comeback_df.iterrows():
+        comeback_day = row['Day']
+
+        if pd.isna(row['Time']):
+            comeback_time = "Not Specified"
+        else:
+            comeback_time = row['Time']
+
+        comeback_artist = row['Artist']
+        comeback_information = row['Relevant Info Site']
+
+        formatted_string = f"Day: {comeback_day} | Time: {comeback_time} | Artist: {comeback_artist} | Relevant Information: {comeback_information}"
+
+        string_list.append(formatted_string)
+
+    if len(string_list) == 0:
+        string_list.append("No relevant comeback for the month")
+
+    print(string_list)
+
+    string_list = []
+
+    for index, row in near_day_comeback_df.iterrows():
+        comeback_day = row['Day']
+
+        if pd.isna(row['Time']):
+            comeback_time = "Not Specified"
+        else:
+            comeback_time = row['Time']
+
+        comeback_artist = row['Artist']
+        comeback_information = row['Relevant Info Site']
+
+        formatted_string = f"Day: {comeback_day} | Time: {comeback_time} | Artist: {comeback_artist} | Relevant Information: {comeback_information}"
+
+        string_list.append(formatted_string)
+
+    if len(string_list) == 0:
+        string_list.append("No relevant comeback in the next few days")
+
+    print(string_list)
+
