@@ -36,6 +36,44 @@ def image_resize(image, min_size):
     return rescaled_image
 
 
+def revision_check(url, webdriver_instance):
+    driver = webdriver_instance
+    driver.get(url)
+
+    print("Waiting for page")
+    time.sleep(5)
+    page_source = driver.page_source
+
+    soup = BeautifulSoup(page_source, 'html.parser')
+
+    # Revision check
+    revision_select = soup.find('select', id='post-revision-selection')
+
+    valid_url_list = []
+
+    if revision_select:
+        print("Revision present")
+        option_value_list = []
+
+        for option in revision_select.find_all('option'):
+            option_value = option['value']  # Get the value attribute
+            option_value_list.append(option_value)  # Add it to the list
+
+        print("Option values:", option_value_list)
+
+        for option in option_value_list:
+            if option != "":
+                mod_url = f"{url}/revision/{option}"
+                valid_url_list.append(mod_url)
+            else:
+                valid_url_list.append(url)
+    else:
+        print("No revision")
+        valid_url_list.append(url)
+
+    print(valid_url_list)
+    return valid_url_list
+
 def article_box_download(url, resources_dir, webdriver_instance):
     driver = webdriver_instance
     driver.get(url)
@@ -96,7 +134,10 @@ def article_box_download(url, resources_dir, webdriver_instance):
 
                 count += 1
 
-                print(f"Attempting inner link | {count} / {downloadable_length}")
+                current_time_value = datetime.now()
+                current_time_string = current_time_value.strftime("%H:%M:%S")
+
+                print(f"Attempting inner link | {count} / {downloadable_length} | {current_time_string}")
 
                 parsed_url = urlparse(image_link).path.replace("/", '')
                 output_name = f"{mod_time_string}_{post_number}_{parsed_url}"
@@ -164,6 +205,9 @@ if __name__ == "__main__":
     print("Loading Webdriver")
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-    article_box_download(url, kumersu_resources_dir, driver)
+    valid_url_list = revision_check(url,driver)
+
+    for valid_url in valid_url_list:
+        article_box_download(valid_url, kumersu_resources_dir, driver)
 
     driver.quit()
