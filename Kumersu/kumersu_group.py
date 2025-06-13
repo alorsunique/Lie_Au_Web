@@ -112,6 +112,10 @@ if __name__ == "__main__":
 
             print(f"\nSet {count} / {post_link_list_length} | Working on post {post}\n")
 
-            kumersu_single.article_box_download(post, kumersu_resources_dir, driver)
+            valid_post_list = kumersu_single.revision_check(post, driver)
+
+            for valid_post in valid_post_list:
+                # kumersu_single.article_box_download(post, kumersu_resources_dir, driver)
+                kumersu_single.article_box_download(valid_post, kumersu_resources_dir, driver)
 
     driver.quit()

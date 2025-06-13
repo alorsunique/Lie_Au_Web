@@ -106,7 +106,15 @@ if __name__ == "__main__":
     if len(string_list) == 0:
         string_list.append("No relevant comeback for the month")
 
+    print("Comeback for the month")
     print(string_list)
+
+    string_text = "month_comeback.txt"
+
+    # Open the file in write mode and write the string to it
+    with open(string_text, 'w', encoding='utf-8') as month_text:
+        for entry in string_list:
+            month_text.write(entry + '\n')
 
     string_list = []
 
@@ -128,5 +136,12 @@ if __name__ == "__main__":
     if len(string_list) == 0:
         string_list.append("No relevant comeback in the next few days")
 
+    print("Comeback for the next few days")
     print(string_list)
 
+    string_text = "next_day_comeback.txt"
+
+    # Open the file in write mode and write the string to it
+    with open(string_text, 'w', encoding='utf-8') as next_day_text:
+        for entry in string_list:
+            next_day_text.write(entry + '\n')
