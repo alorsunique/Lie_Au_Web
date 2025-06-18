@@ -88,7 +88,50 @@ if __name__ == "__main__":
         }
     )
 
-    user_prompt = "Provide a summary. Keep the summary a paragraph at most."
+
+
+    # Read the month comeback
+    file_name = "next_day_comeback.txt"
+
+    # Initialize an empty list to hold the entries
+    reconstructed_list = []
+
+    # Open the file in read mode with UTF-8 encoding
+    with open(file_name, 'r', encoding='utf-8') as file:
+        # Read each line in the file
+        for line in file:
+            # Strip trailing whitespace/newline characters and append to the list
+            reconstructed_list.append(line.strip())
+
+    # Print the reconstructed list
+    print("Reconstructed list:", reconstructed_list)
+
+    count = 0
+    for entry in reconstructed_list:
+        count += 1
+        user_prompt = f"Comeback {count} | {entry}"
+
+        # Appends the user prompt
+        message_list.append(
+            {
+                "role": "user",
+                "content": user_prompt,
+            }
+        )
+
+    user_prompt = "Those are the comebacks for the next few days"
+
+    # Appends the user prompt
+    message_list.append(
+        {
+            "role": "user",
+            "content": user_prompt,
+        }
+    )
+
+
+
+    user_prompt = "Provide a summary. Keep the summary a paragraph at most. Put the most urgent things first"
 
     # Appends the user prompt
     message_list.append(
