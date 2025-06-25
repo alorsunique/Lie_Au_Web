@@ -8,7 +8,23 @@ from pathlib import Path
 
 import pandas as pd
 import requests
+import yaml
 from bs4 import BeautifulSoup
+
+
+def find_project_root(script_path, marker):
+    current_path = script_path
+    while not (current_path / marker).exists():
+        # If block checks for parent of current path
+        # If it cannot go up any further, base directory is reached
+        if current_path.parent == current_path:
+            raise FileNotFoundError(f"Could not find '{marker}' in any parent directories.")
+
+        current_path = current_path.parent
+
+    # If it exits the while loop, marker was found
+    return current_path
+
 
 # Main function used to track
 def track(url):
@@ -97,18 +113,22 @@ if __name__ == "__main__":
     column_label_list = ["Day", "Time", "Artist", "Relevant Info Site"]
 
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
-    print(formatted_url)
+    print(f"Formatted URL: {formatted_url}")
 
     page_info_list = track(formatted_url)
     df = pd.DataFrame(page_info_list, columns=column_label_list)
 
+    # Will store the dataframe to an Excel file
+    config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent.parent
+    project_dir = find_project_root(script_path, config_file_name)
 
-    os.chdir(project_dir)
+    config_file_path = project_dir / config_file_name
 
-    with open("Resources_Path.txt", "r") as resources_text:
-        resources_dir = Path(str(resources_text.readline()).replace('"', ''))
+    with open(config_file_path, "r") as open_config:
+        config_content = yaml.safe_load(open_config)
+
+    resources_dir = Path(config_content['resources_dir'])
 
     catalog_path = resources_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
 
