@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+    <div id="opener-verse-container">
+        <h1 id="time">
+            {{ current_time }}
+        </h1>
+        <h1 id="date">
+            {{ current_date }}
+        </h1>
+        <h1 id="weekday">
+            {{ current_day_of_week }}
+        </h1>
+    </div>
+
+    <div id="content-container">
+        <pre>{{ content }}</pre>
+    </div>
+
+    <script src="{{ url_for('static', filename='refresh.js') }}"></script>
+</body>
+</html>
