@@ -5,15 +5,26 @@ from pathlib import Path
 
 from openai import AzureOpenAI
 
+from ollama import chat
+from ollama import ChatResponse
+
+
+from datetime import datetime, timedelta
+import time
+
+
+
 
 # Main flow
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
+    project_dir = script_path.parent.parent
     os.chdir(project_dir)
 
     with open("Resources_Path.txt", "r") as resources_text:
         resources_dir = Path(str(resources_text.readline()).replace('"', ''))
+
+    daily_report_dir = resources_dir / "Daily Report"
 
     # Open the text file containing the API details
     api_detail_path = resources_dir / "API Key.txt"
@@ -40,6 +51,7 @@ if __name__ == "__main__":
         You are a secretary. You will summarize important information for the day so that the user will be updated.
     '''
 
+
     # Appends the system prompt
     message_list.append(
         {
@@ -48,8 +60,25 @@ if __name__ == "__main__":
         }
     )
 
+    datetime_object = datetime.fromtimestamp(time.time())
+
+    current_month = datetime_object.month
+    current_year = datetime_object.year
+    current_day = datetime_object.day
+
+    user_prompt = f"Today is {current_year}/{current_month}/{current_day}. The format is YYYY/MM/DD"
+
+    # Appends the user prompt
+    message_list.append(
+        {
+            "role": "user",
+            "content": user_prompt,
+        }
+    )
+
+
     # Read the month comeback
-    file_name = "month_comeback.txt"
+    file_name = daily_report_dir / "month_comeback.txt"
 
     # Initialize an empty list to hold the entries
     reconstructed_list = []
@@ -78,7 +107,7 @@ if __name__ == "__main__":
             }
         )
 
-    user_prompt = "Those are the comebacks for the month"
+    user_prompt = "Those are the comebacks for the month."
 
     # Appends the user prompt
     message_list.append(
@@ -91,7 +120,7 @@ if __name__ == "__main__":
 
 
     # Read the month comeback
-    file_name = "next_day_comeback.txt"
+    file_name = daily_report_dir / "next_day_comeback.txt"
 
     # Initialize an empty list to hold the entries
     reconstructed_list = []
@@ -119,7 +148,7 @@ if __name__ == "__main__":
             }
         )
 
-    user_prompt = "Those are the comebacks for the next few days"
+    user_prompt = "Those are the comebacks for today, tomorrow, and the day after tomorrow."
 
     # Appends the user prompt
     message_list.append(
@@ -131,7 +160,7 @@ if __name__ == "__main__":
 
 
 
-    user_prompt = "Provide a summary. Keep the summary a paragraph at most. Put the most urgent things first"
+    user_prompt = "Provide a summary. Keep the summary a paragraph at most. Put the most urgent things first. I just need the summary. Do not offer any other help."
 
     # Appends the user prompt
     message_list.append(
@@ -140,21 +169,37 @@ if __name__ == "__main__":
             "content": user_prompt,
         }
     )
+
+
+
 
     # Requests for a response from the model
-    response = client.chat.completions.create(
-        model=deployment_name,
+    # response = client.chat.completions.create(
+        # model=deployment_name,
+        # messages=message_list,
+    # )
+
+    response: ChatResponse = chat(
+        model='gemma3:4b-it-qat',
         messages=message_list,
     )
 
     # Get the actual message content from the response
-    response_message = response.choices[0].message
-    response_message_content = response_message.content
+    # response_message = response.choices[0].message
+    # response_message_content = response_message.content
 
-    print(f"\nResponse: {response_message.content}\n")
+    response_message = response.message.content
+
+    # print(f"\nResponse: {response_message.content}\n")
+    print(f"\nResponse: {response_message}\n")
+
+
 
     daily_text = "daily_text.txt"
+    daily_path = daily_report_dir / daily_text
+
+
 
     # Open the file in write mode and write the string to it
-    with open(daily_text, 'w', encoding='utf-8') as daily_text_file:
-            daily_text_file.write(response_message_content)
+    with open(daily_path, 'w', encoding='utf-8') as daily_text_file:
+            daily_text_file.write(response_message)

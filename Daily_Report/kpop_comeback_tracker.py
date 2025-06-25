@@ -10,7 +10,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-
+# Main function used to track
 def track(url):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
@@ -71,8 +71,8 @@ def track(url):
         pass
 
 
+# Main
 if __name__ == "__main__":
-
     # Get the current month and year
     datetime_object = datetime.fromtimestamp(time.time())
 
@@ -103,7 +103,9 @@ if __name__ == "__main__":
     df = pd.DataFrame(page_info_list, columns=column_label_list)
 
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
+    project_dir = script_path.parent.parent
+
+    os.chdir(project_dir)
 
     with open("Resources_Path.txt", "r") as resources_text:
         resources_dir = Path(str(resources_text.readline()).replace('"', ''))

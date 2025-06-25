@@ -1,12 +1,13 @@
 # Reads the output file
 
 import time
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
 
-
+# Get the date for today, tomorrow, and the day after tomorrow
 def day_forward(date):
     today = date
     tomorrow = date + timedelta(days=1)
@@ -17,16 +18,20 @@ def day_forward(date):
     return day_list
 
 
+# Main
 if __name__ == "__main__":
-
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent
+    project_dir = script_path.parent.parent
+
+    os.chdir(project_dir)
 
     with open("Resources_Path.txt", "r") as resources_text:
         resources_dir = Path(str(resources_text.readline()).replace('"', ''))
 
+    daily_report_dir = resources_dir / "Daily Report"
+
     # Read the text file containing the valid artist
-    artist_list_path = resources_dir / "Artists_List.txt"
+    artist_list_path = daily_report_dir / "Artists_List.txt"
 
     with open(artist_list_path, "r") as artist_text:
         content = artist_text.read()
@@ -110,9 +115,10 @@ if __name__ == "__main__":
     print(string_list)
 
     string_text = "month_comeback.txt"
+    string_path = daily_report_dir / string_text
 
     # Open the file in write mode and write the string to it
-    with open(string_text, 'w', encoding='utf-8') as month_text:
+    with open(string_path, 'w', encoding='utf-8') as month_text:
         for entry in string_list:
             month_text.write(entry + '\n')
 
@@ -140,8 +146,9 @@ if __name__ == "__main__":
     print(string_list)
 
     string_text = "next_day_comeback.txt"
+    string_path = daily_report_dir / string_text
 
     # Open the file in write mode and write the string to it
-    with open(string_text, 'w', encoding='utf-8') as next_day_text:
+    with open(string_path, 'w', encoding='utf-8') as next_day_text:
         for entry in string_list:
             next_day_text.write(entry + '\n')
