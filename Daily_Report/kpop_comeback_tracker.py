@@ -90,10 +90,10 @@ def track(url):
 # Main
 if __name__ == "__main__":
     # Get the current month and year
-    datetime_object = datetime.fromtimestamp(time.time())
+    current_datetime_object = datetime.fromtimestamp(time.time())
 
-    current_month = datetime_object.month
-    current_year = datetime_object.year
+    current_month = current_datetime_object.month
+    current_year = current_datetime_object.year
 
     month_map = {
         1: "january",

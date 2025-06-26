@@ -40,58 +40,87 @@ def find_project_root(script_path, marker):
 
 
 
-def month_comeback(df, current_month, artist_list, reverse_month_map):
-
-    print(current_month)
-    print(artist_list)
-    print(reverse_month_map)
-
+def month_comeback(df, current_datetime_object, artist_list, reverse_month_map):
+    # Get current month
+    current_month = current_datetime_object.month
     string_month = reverse_month_map[current_month]
-    print(string_month)
 
-    print(df['Day'])
-
-    mask_artist = df['Artist'].str.lower().isin(valid_artist_list)
-    print(mask_artist)
+    # Masks for artist and month
+    mask_artist = df['Artist'].str.lower().isin(artist_list)
     mask_month = df['Day'].str.contains(string_month)
-    print(mask_month)
 
+    # Filtered DF
     month_comeback_df = df.loc[mask_artist & mask_month]
 
-    print(month_comeback_df)
+    return month_comeback_df
 
 
 
-def remain_month_comeback(df, datetime_object, artist_list, reverse_month_map):
+
+
+
+
+def remain_month_comeback(df, current_datetime_object, artist_list, reverse_month_map):
     # Compute for the datetime of the next month
-    if datetime_object.month == 12:
-        next_month = datetime(datetime_object.year + 1, 1, 1)
+    if current_datetime_object.month == 12:
+        next_month = datetime(current_datetime_object.year + 1, 1, 1)
     else:
-        next_month = datetime(datetime_object.year, datetime_object.month + 1, 1)
+        next_month = datetime(current_datetime_object.year, current_datetime_object.month + 1, 1)
 
     # Subtract a day from datetime of next month
     last_day = next_month - timedelta(days=1)
 
+    # Determines the remaining days of the month
     remaining_day_list = []
 
     count = 0
-    while count <= (last_day-datetime_object).days + 1:
-        print(datetime_object + timedelta(days=count))
-        remaining_day_list.append(datetime_object + timedelta(days=count))
+    while count <= (last_day - current_datetime_object).days + 1:
+        remaining_day_list.append(current_datetime_object + timedelta(days=count))
         count += 1
 
-    # Generate list of remaining days including today
-    #remaining_days = [datetime_object + timedelta(days=i)
-                      #for i in range((last_day_of_month - datetime_object).days + 1)]
+    # Formats the remaining days to match the string format
+    remaining_formatted_day_list = []
 
-    # Optional: just the date part
-    #remaining_dates = [d.date() for d in remaining_days]
+    for remaining_day in remaining_day_list:
+        formatted_day = f"{reverse_month_map[remaining_day.month]} {remaining_day.day}, {remaining_day.year}"
+        remaining_formatted_day_list.append(formatted_day)
 
-    #print(remaining_dates)
+    # Masks for artists and remaining days
+    mask_artist = df['Artist'].str.lower().isin(valid_artist_list)
+    mask_month = df['Day'].isin(remaining_formatted_day_list)
+
+    remain_month_comeback_df = df.loc[mask_artist & mask_month]
+
+    return remain_month_comeback_df
 
 
 
 
+def next_day_comeback(df, current_datetime_object, artist_list, reverse_month_map, next_day_add):
+    # Store from now up to the specified max
+    day_list = []
+
+    count = 0
+    while count <= next_day_add:
+        day_list.append(current_datetime_object + timedelta(count))
+        count += 1
+
+    remaining_formatted_day_list = []
+    for remaining_day in day_list:
+        formatted_day = f"{reverse_month_map[remaining_day.month]} {remaining_day.day}, {remaining_day.year}"
+        remaining_formatted_day_list.append(formatted_day)
+
+    print(remaining_formatted_day_list)
+    # Masks for artists and remaining days
+    mask_artist = df['Artist'].str.lower().isin(artist_list)
+    mask_month = df['Day'].isin(remaining_formatted_day_list)
+
+    next_day_comeback_df = df.loc[mask_artist & mask_month]
+
+    print(next_day_comeback_df)
+
+    for index, row in next_day_comeback_df.iterrows():
+        print(row)
 
 
 
@@ -125,10 +154,10 @@ if __name__ == "__main__":
             valid_artist_list.append(formatted_entry)
 
     # Get the current month and year
-    datetime_object = datetime.fromtimestamp(time.time())
+    current_datetime_object = datetime.fromtimestamp(time.time())
 
-    current_month = datetime_object.month
-    current_year = datetime_object.year
+    current_month = current_datetime_object.month
+    current_year = current_datetime_object.year
 
     # For next month
     if current_month == 12:
@@ -149,9 +178,9 @@ if __name__ == "__main__":
     whole_df = pd.concat([df, next_df], ignore_index=True)
 
     # Get tbe next three days
-    projected_day_list = day_forward(datetime_object)
+    #projected_day_list = day_forward(current_datetime_object)
 
-    print(projected_day_list)
+    #print(projected_day_list)
 
 
 
@@ -171,9 +200,12 @@ if __name__ == "__main__":
         12: "December"
     }
 
-    month_comeback(whole_df, current_month, valid_artist_list, reverse_month_map)
+    month_comeback(whole_df, current_datetime_object, valid_artist_list, reverse_month_map)
 
-    remain_month_comeback(whole_df, datetime_object, valid_artist_list, reverse_month_map)
+    remain_month_comeback(whole_df, current_datetime_object, valid_artist_list, reverse_month_map)
+
+    next_day_add = 5
+    next_day_comeback(whole_df, current_datetime_object, valid_artist_list, reverse_month_map,next_day_add)
 
     time.sleep(1000)
 
