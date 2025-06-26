@@ -112,11 +112,26 @@ if __name__ == "__main__":
 
     column_label_list = ["Day", "Time", "Artist", "Relevant Info Site"]
 
+    # URL for current month
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
     print(f"Formatted URL: {formatted_url}")
 
     page_info_list = track(formatted_url)
     df = pd.DataFrame(page_info_list, columns=column_label_list)
+
+    # For next month
+    if current_month == 12:
+        next_month = 1
+        next_year = current_year + 1
+    else:
+        next_month = current_month + 1
+        next_year = current_year
+
+    formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[next_month]}-{next_year}/"
+    print(f"Formatted URL: {formatted_url}")
+
+    page_info_list = track(formatted_url)
+    next_df = pd.DataFrame(page_info_list, columns=column_label_list)
 
     # Will store the dataframe to an Excel file
     config_file_name = 'Lie_Au_Web_config.yaml'
@@ -129,10 +144,22 @@ if __name__ == "__main__":
         config_content = yaml.safe_load(open_config)
 
     resources_dir = Path(config_content['resources_dir'])
+    daily_report_dir = resources_dir / "Daily Report"
 
-    catalog_path = resources_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
+    # Writing for current month
+    catalog_path = daily_report_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
+    print(catalog_path)
 
     if catalog_path.exists():
         os.remove(catalog_path)
 
     df.to_excel(catalog_path, sheet_name='Comeback', index=False)
+
+    # Writing for next month
+    catalog_path = daily_report_dir / f"{next_year}_{str(next_month).zfill(2)}_KPop_Output.xlsx"
+    print(catalog_path)
+
+    if catalog_path.exists():
+        os.remove(catalog_path)
+
+    next_df.to_excel(catalog_path, sheet_name='Comeback', index=False)

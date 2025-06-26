@@ -39,6 +39,62 @@ def find_project_root(script_path, marker):
 
 
 
+
+def month_comeback(df, current_month, artist_list, reverse_month_map):
+
+    print(current_month)
+    print(artist_list)
+    print(reverse_month_map)
+
+    string_month = reverse_month_map[current_month]
+    print(string_month)
+
+    print(df['Day'])
+
+    mask_artist = df['Artist'].str.lower().isin(valid_artist_list)
+    print(mask_artist)
+    mask_month = df['Day'].str.contains(string_month)
+    print(mask_month)
+
+    month_comeback_df = df.loc[mask_artist & mask_month]
+
+    print(month_comeback_df)
+
+
+
+def remain_month_comeback(df, datetime_object, artist_list, reverse_month_map):
+    # Compute for the datetime of the next month
+    if datetime_object.month == 12:
+        next_month = datetime(datetime_object.year + 1, 1, 1)
+    else:
+        next_month = datetime(datetime_object.year, datetime_object.month + 1, 1)
+
+    # Subtract a day from datetime of next month
+    last_day = next_month - timedelta(days=1)
+
+    remaining_day_list = []
+
+    count = 0
+    while count <= (last_day-datetime_object).days + 1:
+        print(datetime_object + timedelta(days=count))
+        remaining_day_list.append(datetime_object + timedelta(days=count))
+        count += 1
+
+    # Generate list of remaining days including today
+    #remaining_days = [datetime_object + timedelta(days=i)
+                      #for i in range((last_day_of_month - datetime_object).days + 1)]
+
+    # Optional: just the date part
+    #remaining_dates = [d.date() for d in remaining_days]
+
+    #print(remaining_dates)
+
+
+
+
+
+
+
 # Main
 if __name__ == "__main__":
     config_file_name = 'Lie_Au_Web_config.yaml'
@@ -51,7 +107,6 @@ if __name__ == "__main__":
         config_content = yaml.safe_load(open_config)
 
     resources_dir = Path(config_content['resources_dir'])
-
     daily_report_dir = resources_dir / "Daily Report"
 
     # Read the text file containing the valid artist
@@ -75,14 +130,31 @@ if __name__ == "__main__":
     current_month = datetime_object.month
     current_year = datetime_object.year
 
-    catalog_path = resources_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
+    # For next month
+    if current_month == 12:
+        next_month = 1
+        next_year = current_year + 1
+    else:
+        next_month = current_month + 1
+        next_year = current_year
+
+    catalog_path = daily_report_dir / f"{current_year}_{str(current_month).zfill(2)}_KPop_Output.xlsx"
 
     df = pd.read_excel(catalog_path)
 
-    current_time = time.time()
-    datetime_object = datetime.fromtimestamp(current_time)
+    catalog_path = daily_report_dir / f"{next_year}_{str(next_month).zfill(2)}_KPop_Output.xlsx"
 
+    next_df = pd.read_excel(catalog_path)
+
+    whole_df = pd.concat([df, next_df], ignore_index=True)
+
+    # Get tbe next three days
     projected_day_list = day_forward(datetime_object)
+
+    print(projected_day_list)
+
+
+
 
     reverse_month_map = {
         1: "January",
@@ -98,6 +170,12 @@ if __name__ == "__main__":
         11: "November",
         12: "December"
     }
+
+    month_comeback(whole_df, current_month, valid_artist_list, reverse_month_map)
+
+    remain_month_comeback(whole_df, datetime_object, valid_artist_list, reverse_month_map)
+
+    time.sleep(1000)
 
     day_string_list = []
     for entry in projected_day_list:
