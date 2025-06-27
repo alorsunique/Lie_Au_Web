@@ -8,42 +8,45 @@ from openai import AzureOpenAI
 from ollama import chat
 from ollama import ChatResponse
 
-
+import yaml
 from datetime import datetime, timedelta
 import time
+
+
+import json
+
+
+def find_project_root(script_path, marker):
+    current_path = script_path
+    while not (current_path / marker).exists():
+        # If block checks for parent of current path
+        # If it cannot go up any further, base directory is reached
+        if current_path.parent == current_path:
+            raise FileNotFoundError(f"Could not find '{marker}' in any parent directories.")
+
+        current_path = current_path.parent
+
+    # If it exits the while loop, marker was found
+    return current_path
+
+
 
 
 
 
 # Main flow
 if __name__ == "__main__":
+    config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
-    project_dir = script_path.parent.parent
-    os.chdir(project_dir)
+    project_dir = find_project_root(script_path, config_file_name)
 
-    with open("Resources_Path.txt", "r") as resources_text:
-        resources_dir = Path(str(resources_text.readline()).replace('"', ''))
+    config_file_path = project_dir / config_file_name
 
+    with open(config_file_path, "r") as open_config:
+        config_content = yaml.safe_load(open_config)
+
+    resources_dir = Path(config_content['resources_dir'])
     daily_report_dir = resources_dir / "Daily Report"
-
-    # Open the text file containing the API details
-    api_detail_path = resources_dir / "API Key.txt"
-
-    with open(api_detail_path, "r") as api_detail:
-        api_detail_list = api_detail.read().splitlines()
-
-    # Importing the API details
-    API = api_detail_list[0]
-    endpoint = api_detail_list[1]
-    version = api_detail_list[2]
-    deployment_name = api_detail_list[3]
-
-    # Initializes the client
-    client = AzureOpenAI(
-        azure_endpoint=endpoint,
-        api_key=API,
-        api_version=version,
-    )
 
     message_list = []
 
@@ -78,48 +81,6 @@ if __name__ == "__main__":
 
 
     # Read the month comeback
-    file_name = daily_report_dir / "month_comeback.txt"
-
-    # Initialize an empty list to hold the entries
-    reconstructed_list = []
-
-    # Open the file in read mode with UTF-8 encoding
-    with open(file_name, 'r', encoding='utf-8') as file:
-        # Read each line in the file
-        for line in file:
-            # Strip trailing whitespace/newline characters and append to the list
-            reconstructed_list.append(line.strip())
-
-    # Print the reconstructed list
-    print("Reconstructed list:", reconstructed_list)
-
-    count = 0
-    for entry in reconstructed_list:
-        count += 1
-        user_prompt = f"Comeback {count} | {entry}"
-
-
-        # Appends the user prompt
-        message_list.append(
-            {
-                "role": "user",
-                "content": user_prompt,
-            }
-        )
-
-    user_prompt = "Those are the comebacks for the month."
-
-    # Appends the user prompt
-    message_list.append(
-        {
-            "role": "user",
-            "content": user_prompt,
-        }
-    )
-
-
-
-    # Read the month comeback
     file_name = daily_report_dir / "next_day_comeback.txt"
 
     # Initialize an empty list to hold the entries
@@ -148,7 +109,26 @@ if __name__ == "__main__":
             }
         )
 
-    user_prompt = "Those are the comebacks for today, tomorrow, and the day after tomorrow."
+    user_prompt = "Those are the comebacks for the next 3 days, today included"
+
+    # Appends the user prompt
+    message_list.append(
+        {
+            "role": "user",
+            "content": user_prompt,
+        }
+    )
+
+    # Read the month comeback
+    file_name = daily_report_dir / "Output_JSON.json"
+
+    if file_name.exists():
+        with open(file_name, "r") as embed_json:
+            output_dict = json.load(embed_json)
+
+    print(output_dict)
+
+    user_prompt = f"This is the weather information for today {output_dict}"
 
     # Appends the user prompt
     message_list.append(
@@ -159,8 +139,12 @@ if __name__ == "__main__":
     )
 
 
-
-    user_prompt = "Provide a summary. Keep the summary a paragraph at most. Put the most urgent things first. I just need the summary. Do not offer any other help."
+    user_prompt = '''
+    Provide a summary. Keep the summary a paragraph at most. 
+    Put the most urgent things first. For the comeback, highlight only the next day comebacks. Do not give it raw. Format it properly so that it is like a report
+    Do not invent new information regarding the comeback
+    I just need the summary. Do not offer any other help.
+    '''
 
     # Appends the user prompt
     message_list.append(
@@ -179,10 +163,21 @@ if __name__ == "__main__":
         # messages=message_list,
     # )
 
+    now = datetime.now()
+    start_time = now
+    current_time = now.strftime("%H:%M:%S")
+    print(f"Message Generation Start Time: {current_time}")
+
     response: ChatResponse = chat(
         model='gemma3:4b-it-qat',
         messages=message_list,
     )
+
+    now = datetime.now()
+    finish_time = now
+    current_time = now.strftime("%H:%M:%S")
+    print(f"Message Generation End Time: {current_time}")
+    print(f"Total Run Time: {finish_time - start_time}")
 
     # Get the actual message content from the response
     # response_message = response.choices[0].message
