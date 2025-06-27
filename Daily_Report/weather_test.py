@@ -213,7 +213,28 @@ if __name__ == "__main__":
 
 	current_datetime_object = datetime.fromtimestamp(time.time())
 
-	quarter_day_forecast(response,current_datetime_object)
+	day_df = quarter_day_forecast(response,current_datetime_object)
+
+	day_temp_list = []
+
+	for index, row in day_df.iterrows():
+		print(row)
+
+		day_time = str(row['date'])
+		day_app_temp = str(row['apparent_temperature'])
+		day_rel_humid = str(row['relative_humidity_2m'])
+		day_rain_change = str(row['precipitation_probability'])
+
+		day_pack = [day_time, day_app_temp, day_rel_humid, day_rain_change]
+		day_temp_list.append(day_pack)
+
+	output_json_path = daily_report_dir / "quarter_Output_JSON.json"
+
+	if output_json_path.exists():
+		os.remove(output_json_path)
+
+	with open(output_json_path, "w") as output_json:
+		json.dump(day_temp_list, output_json)
 
 	time.sleep(1000)
 
@@ -246,8 +267,8 @@ if __name__ == "__main__":
 	hourly_dataframe = pd.DataFrame(data=hourly_data)
 	print(hourly_dataframe)
 
-	for index, row in hourly_dataframe.iterrows():
-		print(row)
+
+
 
 time.sleep(10000)
 

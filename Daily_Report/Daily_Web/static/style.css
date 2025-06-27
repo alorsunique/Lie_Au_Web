@@ -52,3 +52,44 @@ body {
     font-family: Consolas, monospace;
     text-align: left; /* keep text aligned for readability */
 }
+
+
+#content-container_1 {
+    width: 50%;
+    margin: 2rem auto; /* centers the container horizontally */
+    text-align: center;
+    color: white;
+}
+
+
+#content-container_1 pre {
+    background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black for contrast */
+    color: white;
+    padding: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    text-align: left; /* keep text aligned for readability */
+}
+
+
+
+#content-container_2 {
+    width: 50%;
+    margin: 2rem auto; /* centers the container horizontally */
+    text-align: center;
+    color: white;
+}
+
+
+#content-container_2 pre {
+    background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black for contrast */
+    color: white;
+    padding: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    font-family: Consolas, monospace;
+    text-align: left; /* keep text aligned for readability */
+}
