@@ -63,7 +63,7 @@ def remain_month_comeback(df, current_datetime_object, artist_list, reverse_mont
         remaining_formatted_day_list.append(formatted_day)
 
     # Masks for artists and remaining days
-    mask_artist = df['Artist'].str.lower().isin(valid_artist_list)
+    mask_artist = df['Artist'].str.lower().isin(artist_list)
     mask_month = df['Day'].isin(remaining_formatted_day_list)
 
     # Filtered DF
@@ -121,8 +121,8 @@ def format_output_string(period_df):
     return string_list
 
 
-# Main
-if __name__ == "__main__":
+
+def main():
     config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
     project_dir = find_project_root(script_path, config_file_name)
@@ -225,3 +225,9 @@ if __name__ == "__main__":
     with open(string_path, 'w', encoding='utf-8') as comeback_text:
         for entry in string_list:
             comeback_text.write(entry + '\n')
+
+
+
+# Main
+if __name__ == "__main__":
+    main()

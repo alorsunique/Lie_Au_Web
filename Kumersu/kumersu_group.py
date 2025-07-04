@@ -76,6 +76,7 @@ if __name__ == "__main__":
     forward_link_list = forward_link_creator(url, driver)
 
     for forward_url in forward_link_list:
+        base_group_url, o_value = forward_url.split('?o=')
 
         print(f"Working on the following forward: {forward_url}")
 
@@ -110,7 +111,7 @@ if __name__ == "__main__":
 
             count += 1
 
-            print(f"\nSet {count} / {post_link_list_length} | Working on post {post}\n")
+            print(f"\n{o_value} | Set {count} / {post_link_list_length} | Working on post {post}\n")
 
             valid_post_list = kumersu_single.revision_check(post, driver)
 

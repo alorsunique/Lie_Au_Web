@@ -34,8 +34,7 @@ def find_project_root(script_path, marker):
 
 
 
-# Main flow
-if __name__ == "__main__":
+def main():
     config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
     project_dir = find_project_root(script_path, config_file_name)
@@ -381,3 +380,10 @@ if __name__ == "__main__":
         daily_text_file.write(response_message)
 
 
+
+
+
+
+# Main flow
+if __name__ == "__main__":
+     main()

@@ -87,8 +87,9 @@ def track(url):
         pass
 
 
+
 # Main
-if __name__ == "__main__":
+def main():
     # Get the current month and year
     current_datetime_object = datetime.fromtimestamp(time.time())
 
@@ -163,3 +164,11 @@ if __name__ == "__main__":
         os.remove(catalog_path)
 
     next_df.to_excel(catalog_path, sheet_name='Comeback', index=False)
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()
