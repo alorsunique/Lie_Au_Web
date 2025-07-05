@@ -27,7 +27,7 @@ def find_project_root(script_path, marker):
 
 
 # Main function used to track
-def track(url):
+def track(url, day_of_the_week_list):
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
@@ -48,6 +48,11 @@ def track(url):
 
                 for element in td_element:
                     content = element.get_text(separator=' ').strip()
+
+                    for weekday in day_of_the_week_list:
+                        if content.startswith(weekday):
+                            content = content[len(weekday):].strip()
+
                     date_split = content.split("at")
 
                     try:
@@ -111,13 +116,15 @@ def main():
         12: "december"
     }
 
+    day_of_the_week_list = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
     column_label_list = ["Day", "Time", "Artist", "Relevant Info Site"]
 
     # URL for current month
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[current_month]}-{current_year}/"
     print(f"Formatted URL: {formatted_url}")
 
-    page_info_list = track(formatted_url)
+    page_info_list = track(formatted_url, day_of_the_week_list)
     df = pd.DataFrame(page_info_list, columns=column_label_list)
 
     # For next month
@@ -131,7 +138,7 @@ def main():
     formatted_url = f"https://kpopofficial.com/kpop-comeback-schedule-{month_map[next_month]}-{next_year}/"
     print(f"Formatted URL: {formatted_url}")
 
-    page_info_list = track(formatted_url)
+    page_info_list = track(formatted_url, day_of_the_week_list)
     next_df = pd.DataFrame(page_info_list, columns=column_label_list)
 
     # Will store the dataframe to an Excel file
