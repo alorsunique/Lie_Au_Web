@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import yaml
 import os
@@ -171,12 +171,24 @@ if __name__ == "__main__":
 
     # while True:
 
-    datetime_object = datetime.fromtimestamp(time.time())
-    
-    current_year = datetime_object.year
-    current_month = datetime_object.month
-    current_day = datetime_object.day
-    current_hour = datetime_object.hour
+    print(index)
+    print(formatted_run_time_list[index])
+    print(datetime_object)
+
+    if index+1 == len(formatted_run_time_list):
+        print("Max hour for the day done. Next day list should be created")
+
+        for entry in formatted_run_time_list:
+            print(entry)
+            print(entry+timedelta(days=1))
+    else:
+
+
+        datetime_object = datetime.fromtimestamp(time.time())
+        
+
+
+
 
 
 
