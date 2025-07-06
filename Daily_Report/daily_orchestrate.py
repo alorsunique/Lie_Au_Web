@@ -42,33 +42,22 @@ if __name__ == "__main__":
 
     daily_run_status_json_path = daily_report_dir / "Run_Status.json"
 
+    # Get current datetime
     datetime_object = datetime.fromtimestamp(time.time())
-
-    print(datetime_object)
-    print(datetime_object.year)
-    print(type(datetime_object.year))
-    print(datetime_object.month)
-    print(datetime_object.day)
 
     current_year = datetime_object.year
     current_month = datetime_object.month
     current_day = datetime_object.day
     current_hour = datetime_object.hour
 
-
-
+    # Declare hours where function should run
     run_time_list = [0,6,12,18]
-
+    # Format the hours
     formatted_run_time_list = []
 
     for entry in run_time_list:
         run_time_object = datetime(current_year,current_month,current_day,entry)
-        print(run_time_object)
-
         formatted_run_time_list.append(run_time_object)
-
-    print(formatted_run_time_list)
-
 
 
 
@@ -79,31 +68,50 @@ if __name__ == "__main__":
     from Daily_Report import daily_report
 
 
-    if not daily_run_status_json_path.exists():
 
-        count = 0
-        index = 0
-        while count < len(run_time_list):
-            if current_hour < run_time_list[count]:
-                index += 1
 
-            count += 1
 
-        index -= 1
-
-        run_status_dict = {
-            'year': current_year,
-            'month': current_month,
-            'day': current_day
-        }
-        with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
-            json.dump(run_status_dict, output_json)
-
+    def report_call():
         kpop_comeback_tracker.main()
         kpop_comeback_reader.main()
         weather_test.main()
         daily_report.main()
 
+
+
+    count = 0
+    index = 0
+    while count < len(formatted_run_time_list):
+        if datetime_object > formatted_run_time_list[count]:
+            index += 1
+
+        count +=1
+
+    index -= 1
+
+
+
+
+    # Check if the run status file exists
+    # If not, this will create the file
+    # It will also do report_call
+    if not daily_run_status_json_path.exists():
+
+        
+        print(formatted_run_time_list[index])
+
+        run_status_dict = {
+            'year': current_year,
+            'month': current_month,
+            'day': current_day,
+            'time': run_time_list[index]
+        }
+        with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
+            json.dump(run_status_dict, output_json)
+
+        report_call()
+
+    # If run status file exists, check the data stored in the file
     else:
         with open(daily_run_status_json_path, 'r', encoding='utf-8') as output_json:
             run_status_dict = json.load(output_json)
@@ -111,11 +119,14 @@ if __name__ == "__main__":
         loaded_year = run_status_dict['year']
         loaded_month = run_status_dict['month']
         loaded_day = run_status_dict['day']
+        loaded_hour = run_status_dict['time']
 
         print(run_status_dict['year'])
         print(run_status_dict['month'])
         print(run_status_dict['day'])
 
+        # If the last run time, as stored in the file, is different to today, update the file
+        # Also do the report_call
         if loaded_year != current_year or loaded_month != current_month or loaded_day != current_day:
             print('day mismatch')
 
@@ -124,18 +135,50 @@ if __name__ == "__main__":
             run_status_dict = {
                 'year': current_year,
                 'month': current_month,
-                'day': current_day
+                'day': current_day,
+                'time': run_time_list[index]
             }
             with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
                 json.dump(run_status_dict, output_json)
 
-            kpop_comeback_tracker.main()
-            kpop_comeback_reader.main()
-            weather_test.main()
-            daily_report.main()
+            report_call()
 
+        # If the day is correct, this part should check if the last previous valid time has been run
         else:
-            print("Mathc")
+            # Here, the current hour should be rounded down
+            # Rounding down is done in the index part
+
+            if run_time_list[index] > loaded_hour:
+
+                os.remove(daily_run_status_json_path)
+
+                run_status_dict = {
+                    'year': current_year,
+                    'month': current_month,
+                    'day': current_day,
+                    'time': run_time_list[index]
+                }
+                with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
+                    json.dump(run_status_dict, output_json)
+
+                report_call()
+
+            else:
+                print(f"Run has been made for hour {run_time_list[index]}")
+
+
+    # This is the part where it can loop since the checks have been made
+
+    # while True:
+
+    datetime_object = datetime.fromtimestamp(time.time())
+    
+    current_year = datetime_object.year
+    current_month = datetime_object.month
+    current_day = datetime_object.day
+    current_hour = datetime_object.hour
+
+
 
 
 
