@@ -1,12 +1,12 @@
 # This script should orchestrate the calling of the daily components
 import json
-from pathlib import Path
-import sys
-from datetime import datetime, timedelta
-import time
-import yaml
 import os
+import sys
+import time
+from datetime import datetime, timedelta
+from pathlib import Path
 
+import yaml
 
 
 def find_project_root(script_path, marker):
@@ -23,9 +23,6 @@ def find_project_root(script_path, marker):
     return current_path
 
 
-
-
-
 if __name__ == "__main__":
     config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
@@ -40,7 +37,7 @@ if __name__ == "__main__":
     resources_dir = Path(config_content['resources_dir'])
     daily_report_dir = resources_dir / "Daily Report"
 
-    daily_run_status_json_path = daily_report_dir / "Run_Status.json"
+    daily_run_check_json_path = daily_report_dir / "run_perform_check.json"
 
     # Get current datetime
     datetime_object = datetime.fromtimestamp(time.time())
@@ -50,145 +47,117 @@ if __name__ == "__main__":
     current_day = datetime_object.day
     current_hour = datetime_object.hour
 
-    # Declare hours where function should run
-    run_time_list = [0,6,12,18]
-    # Format the hours
+    # Declare hours when function should run
+    run_time_list = [0, 6, 12, 18]
+
+    # Format the hours to be datetime objects
     formatted_run_time_list = []
 
     for entry in run_time_list:
-        run_time_object = datetime(current_year,current_month,current_day,entry)
+        run_time_object = datetime(current_year, current_month, current_day, entry)
         formatted_run_time_list.append(run_time_object)
 
-
-
-
+    # Importing the things to be run
     from Daily_Report import kpop_comeback_tracker
     from Daily_Report import kpop_comeback_reader
     from Daily_Report import weather_test
     from Daily_Report import daily_report
 
 
+    def scheduled_set_function_call():
+        kpop_comeback_tracker.main()
+        kpop_comeback_reader.main()
+        weather_test.main()
+        daily_report.main()
 
 
-
-    def report_call():
-        print('Report Call')
-        # kpop_comeback_tracker.main()
-        # kpop_comeback_reader.main()
-        # weather_test.main()
-        # daily_report.main()
-
-    # datetime_object = datetime(current_year,current_month,current_day,20)
-
-
+    # Determine the index of the hour floored
     index = 0
 
     for entry in formatted_run_time_list:
         if datetime_object >= entry:
             index += 1
 
+    print(f'Previous scheduled run time: {formatted_run_time_list[index - 1]}')
 
-
-    print(index)
-
-    print(formatted_run_time_list)
-    print(formatted_run_time_list[index-1])
-
-
-
-
-
-    # Check if the run status file exists
+    # Check if the run_perform_check file exists
     # If not, this will create the file
-    # It will also do report_call
-    if not daily_run_status_json_path.exists():
-
-        
-        print(formatted_run_time_list[index])
+    # It will also call the function
+    if not daily_run_check_json_path.exists():
+        print(f'No previous recorded detected.\nCreating record for {formatted_run_time_list[index - 1]}')
 
         run_status_dict = {
             'year': current_year,
             'month': current_month,
             'day': current_day,
-            'time': run_time_list[index]
+            'time': run_time_list[index - 1]
         }
-        with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
-            json.dump(run_status_dict, output_json)
+        with open(daily_run_check_json_path, 'w', encoding='utf-8') as run_check_json:
+            json.dump(run_status_dict, run_check_json)
 
-        report_call()
+        scheduled_set_function_call()
 
-    # If run status file exists, check the data stored in the file
+    # If run_perform_check file exists, check the data stored in the file
     else:
-        with open(daily_run_status_json_path, 'r', encoding='utf-8') as output_json:
-            run_status_dict = json.load(output_json)
+        with open(daily_run_check_json_path, 'r', encoding='utf-8') as run_check_json:
+            run_status_dict = json.load(run_check_json)
 
         loaded_year = run_status_dict['year']
         loaded_month = run_status_dict['month']
         loaded_day = run_status_dict['day']
         loaded_hour = run_status_dict['time']
 
-        print(run_status_dict['year'])
-        print(run_status_dict['month'])
-        print(run_status_dict['day'])
-
-        # If the last run time, as stored in the file, is different to today, update the file
-        # Also do the report_call
+        # If date of last run is different to current day, will update the file
+        # Also call the function
         if loaded_year != current_year or loaded_month != current_month or loaded_day != current_day:
-            print('day mismatch')
+            print(f'Day mismatch detected.\nCreating record for {run_time_list[index - 1]}')
 
-            os.remove(daily_run_status_json_path)
+            os.remove(daily_run_check_json_path)
 
             run_status_dict = {
                 'year': current_year,
                 'month': current_month,
                 'day': current_day,
-                'time': run_time_list[index]
+                'time': run_time_list[index - 1]
             }
-            with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
-                json.dump(run_status_dict, output_json)
+            with open(daily_run_check_json_path, 'w', encoding='utf-8') as run_check_json:
+                json.dump(run_status_dict, run_check_json)
 
-            report_call()
+            scheduled_set_function_call()
 
-        # If the day is correct, this part should check if the last previous valid time has been run
+        # If the day is correct, checks if the last previous valid time has been run
         else:
-            # Here, the current hour should be rounded down
+            # Here, the current hour should be floored
             # Rounding down is done in the index part
-
-            if run_time_list[index-1] > loaded_hour:
-
-                os.remove(daily_run_status_json_path)
+            if run_time_list[index - 1] > loaded_hour:
+                print(f'Hour mismatch detected.\nCreating record for {run_time_list[index - 1]}')
+                os.remove(daily_run_check_json_path)
 
                 run_status_dict = {
                     'year': current_year,
                     'month': current_month,
                     'day': current_day,
-                    'time': run_time_list[index-1]
+                    'time': run_time_list[index - 1]
                 }
-                with open(daily_run_status_json_path, 'w', encoding='utf-8') as output_json:
-                    json.dump(run_status_dict, output_json)
+                with open(daily_run_check_json_path, 'w', encoding='utf-8') as run_check_json:
+                    json.dump(run_status_dict, run_check_json)
 
-                report_call()
+                scheduled_set_function_call()
 
             else:
-                print(f"Run has been made for hour {run_time_list[index-1]}")
-
+                print(f"Run performed for {run_time_list[index - 1]}")
 
     # This is the part where it can loop since the checks have been made
-
+    # In the loop, index is not subtracted by 1 since it is looking forward
+    # Compared to before where the previous time should be recorded
     while True:
-        print(f'Index: {index}')
-        print(f'Current datetime object: {datetime_object}')
-        print(f'Next target time: {formatted_run_time_list[index]}')
-
-        if index+1 == len(formatted_run_time_list):
-            print("Max hour for the day done. Next day list should be created")
+        if index == len(formatted_run_time_list):
+            print("All run for the day done. Creating list for next day runs")
 
             next_day_formatted_run_time_list = []
 
+            # Adding a day to the entries
             for entry in formatted_run_time_list:
-                print(f'Formatted Entry: {entry}')
-                print(f'Incremented by a day {entry+timedelta(days=1)}')
-
                 next_day_entry = entry + timedelta(days=1)
                 next_day_formatted_run_time_list.append(next_day_entry)
 
@@ -198,41 +167,27 @@ if __name__ == "__main__":
 
             index = 0
 
+        print(f'Index: {index}')
+        print(f'Current time: {datetime_object}')
+        print(f'Next target time: {formatted_run_time_list[index]}')
 
-        to_sleep_time_object = (formatted_run_time_list[index]-datetime_object)
+        to_sleep_time_object = formatted_run_time_list[index] - datetime_object
         to_sleep_time = to_sleep_time_object.total_seconds()
-        print(f"Will sleep for {to_sleep_time} to reach {formatted_run_time_list[index]}")
+        print(f'Will sleep for {to_sleep_time} seconds.\nWake up time: {formatted_run_time_list[index]}')
 
-        datetime_object = datetime_object + to_sleep_time_object
+        time.sleep(to_sleep_time)
+        os.remove(daily_run_check_json_path)
 
-        report_call()
+        run_status_dict = {
+            'year': current_year,
+            'month': current_month,
+            'day': current_day,
+            'time': run_time_list[index]
+        }
+        with open(daily_run_check_json_path, 'w', encoding='utf-8') as run_check_json:
+            json.dump(run_status_dict, run_check_json)
 
+        # Run the function again
+        scheduled_set_function_call()
 
         index += 1
-
-        time.sleep(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
