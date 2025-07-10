@@ -24,6 +24,10 @@ def find_project_root(script_path, marker):
 
 
 if __name__ == "__main__":
+    # Five minute sleep to let the computer connect to internet
+    time.sleep(300)
+
+
     config_file_name = 'Lie_Au_Web_config.yaml'
     script_path = Path(__file__).resolve()
     project_dir = find_project_root(script_path, config_file_name)
@@ -48,7 +52,7 @@ if __name__ == "__main__":
     current_hour = datetime_object.hour
 
     # Declare hours when function should run
-    run_time_list = [0, 6, 12, 18]
+    run_time_list = [0, 6, 12,13, 18]
 
     # Format the hours to be datetime objects
     formatted_run_time_list = []
@@ -110,7 +114,7 @@ if __name__ == "__main__":
         # If date of last run is different to current day, will update the file
         # Also call the function
         if loaded_year != current_year or loaded_month != current_month or loaded_day != current_day:
-            print(f'Day mismatch detected.\nCreating record for {run_time_list[index - 1]}')
+            print(f'Day mismatch detected.\nCreating record for {formatted_run_time_list[index - 1]}')
 
             os.remove(daily_run_check_json_path)
 
@@ -130,7 +134,7 @@ if __name__ == "__main__":
             # Here, the current hour should be floored
             # Rounding down is done in the index part
             if run_time_list[index - 1] > loaded_hour:
-                print(f'Hour mismatch detected.\nCreating record for {run_time_list[index - 1]}')
+                print(f'Hour mismatch detected.\nCreating record for {formatted_run_time_list[index - 1]}')
                 os.remove(daily_run_check_json_path)
 
                 run_status_dict = {
@@ -152,7 +156,7 @@ if __name__ == "__main__":
     # Compared to before where the previous time should be recorded
     while True:
         if index == len(formatted_run_time_list):
-            print("All run for the day done. Creating list for next day runs")
+            print("All runs for the day done. Creating list for next day runs")
 
             next_day_formatted_run_time_list = []
 
@@ -168,6 +172,7 @@ if __name__ == "__main__":
             index = 0
 
         print(f'Index: {index}')
+        datetime_object = datetime.fromtimestamp(time.time())
         print(f'Current time: {datetime_object}')
         print(f'Next target time: {formatted_run_time_list[index]}')
 

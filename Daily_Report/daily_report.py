@@ -296,14 +296,28 @@ def main():
     next_day_comeback_path = daily_report_dir / 'next_day_comeback.txt'
     remain_month_comeback_path = daily_report_dir / 'remain_month_comeback.txt'
 
-    next_three_day_response, remain_month_response = kpop_report(datetime_object, next_day_comeback_path, remain_month_comeback_path, model_choice)
+    next_day_respone, remain_month_response = kpop_report(datetime_object, next_day_comeback_path, remain_month_comeback_path, model_choice)
 
-    next_three_day_message = next_three_day_response.message.content
+    next_day_message = next_day_respone.message.content
     remain_month_message = remain_month_response.message.content
 
-    print(next_three_day_message)
+    print(next_day_message)
     print(remain_month_message)
 
+    report_next_day_comeback_path = daily_report_dir / 'report_next_day_comeback.txt'
+    report_remain_month_comeback_path = daily_report_dir / 'report_remain_month_comeback.txt'
+
+    if report_next_day_comeback_path.exists():
+        os.remove(report_next_day_comeback_path)
+
+    with open(report_next_day_comeback_path, 'w', encoding='utf-8') as written_report:
+        written_report.write(next_day_message)
+
+    if report_remain_month_comeback_path.exists():
+        os.remove(report_remain_month_comeback_path)
+
+    with open(report_remain_month_comeback_path, 'w', encoding='utf-8') as written_report:
+        written_report.write(remain_month_message)
 
     
 
