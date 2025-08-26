@@ -71,6 +71,8 @@ if __name__ == "__main__":
         post_link_list = acquire_card_links(url)
         post_link_length = len(post_link_list)
 
+        post_link_list.reverse()
+
         count = 0
         total_requested_size = 0
 

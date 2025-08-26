@@ -12,7 +12,7 @@ import pandas as pd
 def catalog_create(catalog_file):
     if not catalog_file.exists():
         model_list = []
-        df = pd.DataFrame(model_list, columns=['Model', 'Download Status'])
+        df = pd.DataFrame(model_list, columns=['Model', 'Download Status', 'Folder Size'])
         df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -45,7 +45,7 @@ def add_model(catalog_file, model_name, download_status):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -72,7 +72,7 @@ def remove_model(catalog_file, model_name):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -85,11 +85,14 @@ def flip_status(catalog_file, model_name):
         potential_rows = df[df['Model'] == model_name]
         potential_list = potential_rows.values.tolist()
 
+        print(potential_list)
+
         # Model is flipped here
         if potential_list[0][1] == 1:
             df_list.remove(potential_list[0])
             df_list.append([model_name, 0])
         else:
+            print(potential_list)
             df_list.remove(potential_list[0])
             df_list.append([model_name, 1])
 
@@ -102,7 +105,7 @@ def flip_status(catalog_file, model_name):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -131,8 +134,37 @@ def clear_extra(catalog_file, beibusosu_resources_dir):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df, columns=['Model', 'Download Status'])
+    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
+
+
+
+
+def get_folder_size(catalog_file, beibusosu_resources_dir):
+
+    df = pd.read_excel(catalog_file)
+
+    model_list = df['Model'].tolist()
+
+    for entry in beibusosu_resources_dir.iterdir():
+        if entry.is_dir() and entry.name in model_list:
+            sum_size = 0
+            for sub_entry in entry.iterdir():
+                sum_size += os.path.getsize(sub_entry)
+
+            model_index = df.index[df['Model'] == entry.name].tolist()[0]
+
+            df.loc[model_index, 'Folder Size'] = sum_size / (1024 * 1024)
+
+    df[['Folder Size']] = df[['Folder Size']].fillna(0)
+
+    # Removes the catalog file for the new update
+    if catalog_file.exists():
+        os.remove(catalog_file)
+
+    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size'])
+    df.to_excel(catalog_file, sheet_name='Catalog', index=False)
+
 
 
 if __name__ == "__main__":
@@ -149,6 +181,8 @@ if __name__ == "__main__":
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
     catalog_create(catalog_path)
 
+    get_folder_size(catalog_path, beibusosu_resources_dir)
+
     while True:
         catalog_show(catalog_path)
 
@@ -159,6 +193,7 @@ if __name__ == "__main__":
         print("2. Remove Model")
         print("3. Flip Status")
         print("4. Clear Extra")
+        print('5. Add Existing')
 
         choice = str(input("Choice: "))
 
@@ -175,6 +210,13 @@ if __name__ == "__main__":
             flip_status(catalog_path, model_name)
         elif choice == "4":
             clear_extra(catalog_path, beibusosu_resources_dir)
+        elif choice == "5":
+
+            for entry in beibusosu_resources_dir.iterdir():
+                if entry.is_dir():
+                    model_name = entry.name
+                    add_model(catalog_path, model_name, 0)
+
         else:
             print("Did not catch that")
         time.sleep(1)

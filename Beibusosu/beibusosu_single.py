@@ -113,7 +113,12 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
             mod_time_string = mod_time.strftime("%Y%m%d_%H%M%S")
 
             count += 1
-            print(f"{count}/{image_link_list_length} | Working: {image_link}")
+
+            current_time_value = datetime.now()
+            current_time_string = current_time_value.strftime("%H:%M:%S")
+
+
+            print(f"{count}/{image_link_list_length} | Working: {image_link} | {current_time_string}")
 
             parsed_url = urlparse(image_link).path.replace("/", '')
             output_name = f"{source_site_text}_{mod_time_string}_{parsed_url}"
