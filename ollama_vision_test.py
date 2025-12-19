@@ -51,13 +51,13 @@ if __name__ == "__main__":
     print(f"Message Generation Start Time: {current_time}")
 
 
-    image_path = "test4.jpg"
+    image_path = "skin.jpg"
     loaded_img = Image.open(image_path)
 
     converted_img = image_to_base64(loaded_img)
 
     prompt = '''
-        Describe to me the image. 
+        I got this on my leg. It feels scaly and becomes itchy if I start itching it first. What could it be?
     '''
 
 

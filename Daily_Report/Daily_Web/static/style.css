@@ -11,6 +11,8 @@ body {
 
 #opener-verse-container {
     text-align: center;
+    border: 2px #00AA00 solid;
+    padding: 100px
 }
 
 #opener-verse-container h1 {
@@ -20,17 +22,20 @@ body {
 
 #time {
     text-transform: uppercase;
-    font-size: 3rem; /* Largest */
+    font-size: 10rem; /* Largest */
+    border: 2px white solid
 }
 
 #date {
     text-transform: none;
     font-size: 1rem; /* Medium */
+    border: 2px white solid
 }
 
 #weekday {
     text-transform: none;
-    font-size: 0.5rem; /* Smallest */
+    font-size: 1rem; /* Smallest */
+    border: 2px white solid
 }
 
 

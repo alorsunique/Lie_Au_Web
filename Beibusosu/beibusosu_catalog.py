@@ -167,6 +167,17 @@ def get_folder_size(catalog_file, beibusosu_resources_dir):
 
 
 
+def display_sorted_size(catalog_file, beibusosu_resources_dir):
+
+    df = pd.read_excel(catalog_file)
+
+    sorted_df = df.sort_values(by=['Folder Size', 'Model'], ascending=[False, True])
+
+    print(sorted_df.to_string())
+
+
+
+
 if __name__ == "__main__":
     script_path = Path(__file__).resolve()
     project_dir = script_path.parent.parent
@@ -194,6 +205,7 @@ if __name__ == "__main__":
         print("3. Flip Status")
         print("4. Clear Extra")
         print('5. Add Existing')
+        print('6. Sorted Size')
 
         choice = str(input("Choice: "))
 
@@ -216,6 +228,10 @@ if __name__ == "__main__":
                 if entry.is_dir():
                     model_name = entry.name
                     add_model(catalog_path, model_name, 0)
+
+        elif choice == '6':
+
+            display_sorted_size(catalog_path, beibusosu_resources_dir)
 
         else:
             print("Did not catch that")

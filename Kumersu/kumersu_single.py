@@ -41,7 +41,7 @@ def revision_check(url, webdriver_instance):
     driver.get(url)
 
     print("Waiting for page")
-    time.sleep(5)
+    time.sleep(1)
     page_source = driver.page_source
 
     soup = BeautifulSoup(page_source, 'html.parser')
@@ -79,7 +79,7 @@ def article_box_download(url, resources_dir, webdriver_instance):
     driver.get(url)
 
     print("Waiting for page")
-    time.sleep(5)
+    time.sleep(1)
     page_source = driver.page_source
 
     soup = BeautifulSoup(page_source, 'html.parser')
@@ -146,7 +146,7 @@ def article_box_download(url, resources_dir, webdriver_instance):
 
                 if not image_path.exists():
                     try:
-                        time.sleep(5)
+                        time.sleep(1)
                         print(f"Requesting Image")
                         image = Image.open(requests.get(image_link, stream=True).raw)
 
