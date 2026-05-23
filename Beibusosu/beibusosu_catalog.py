@@ -12,7 +12,7 @@ import pandas as pd
 def catalog_create(catalog_file):
     if not catalog_file.exists():
         model_list = []
-        df = pd.DataFrame(model_list, columns=['Model', 'Download Status', 'Folder Size'])
+        df = pd.DataFrame(model_list, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
         df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -45,7 +45,7 @@ def add_model(catalog_file, model_name, download_status):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -72,7 +72,7 @@ def remove_model(catalog_file, model_name):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -105,7 +105,7 @@ def flip_status(catalog_file, model_name):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size'])
+    df = pd.DataFrame(df_list, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -134,7 +134,7 @@ def clear_extra(catalog_file, beibusosu_resources_dir):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size'])
+    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 
@@ -162,7 +162,7 @@ def get_folder_size(catalog_file, beibusosu_resources_dir):
     if catalog_file.exists():
         os.remove(catalog_file)
 
-    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size'])
+    df = pd.DataFrame(df, columns=['Model', 'Download Status', 'Folder Size', 'Home Link'])
     df.to_excel(catalog_file, sheet_name='Catalog', index=False)
 
 

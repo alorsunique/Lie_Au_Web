@@ -24,7 +24,6 @@ def collect_download_link(url, aidoru_key):
 
     for item in item_soup:
 
-
         details_left_soup = item.find('div', class_='post-details-left')
         details_left_link_holder = details_left_soup.find('a')
 
@@ -131,7 +130,7 @@ def get_media_link(url, left_link_info):
 
                 media_link_list.append(working_link)
 
-        print(media_link_list)
+        # print(media_link_list)
 
     except:
         print(f'Locked Content')
@@ -144,7 +143,7 @@ def get_media_link(url, left_link_info):
 
 
 
-def download_media(url, front_title, save_path):
+def download_media(url, front_title, save_path, mod_time_offset_count):
     """
     Downloads jpg/png/webp/gif/mp4 while preserving animation.
     save_path must include filename + extension.
@@ -156,13 +155,15 @@ def download_media(url, front_title, save_path):
 
     output_path = save_path / output_name
 
-    print(output_path)
+    publish_date_string_split = output_name.split('[_]')[0].split('_')
+
+    publish_date_string = f'{publish_date_string_split[0]}_{publish_date_string_split[1]}'
+
+    print(output_path.name)
 
     if not output_path.exists():
 
 
-
-        # time.sleep(1)
 
         headers = {
             "User-Agent": "Mozilla/5.0"
@@ -174,11 +175,20 @@ def download_media(url, front_title, save_path):
             content_type = r.headers.get("Content-Type", "").lower()
 
             # ---- VIDEO (MP4) ----
-            if "video/mp4" in content_type or save_path.suffix == ".mp4":
+            if "video/mp4" in content_type or output_path.suffix == ".mp4":
                 with open(output_path, "wb") as f:
                     for chunk in r.iter_content(chunk_size=1024 * 1024):
                         if chunk:
                             f.write(chunk)
+
+                    publish_date_object = datetime.strptime(publish_date_string, '%Y%m%d_%H%M%S')
+
+                    mod_time = publish_date_object + (mod_time_offset_count * timedelta(seconds=1))
+
+                    time.sleep(4)
+
+                    os.utime(output_path, (mod_time.timestamp(), mod_time.timestamp()))
+
                 return
 
             # ---- ANIMATED FORMATS (RAW SAVE) ----
@@ -188,6 +198,15 @@ def download_media(url, front_title, save_path):
                     for chunk in r.iter_content(chunk_size=8192):
                         if chunk:
                             f.write(chunk)
+
+                    publish_date_object = datetime.strptime(publish_date_string, '%Y%m%d_%H%M%S')
+
+                    mod_time = publish_date_object + (mod_time_offset_count * timedelta(seconds=1))
+
+                    time.sleep(1)
+
+                    os.utime(output_path, (mod_time.timestamp(), mod_time.timestamp()))
+
                 return
 
             # ---- STATIC IMAGES (JPG / PNG) ----
@@ -198,7 +217,13 @@ def download_media(url, front_title, save_path):
 
             image.save(output_path)
 
-        # os.utime(output_path, (mod_time.timestamp(), mod_time.timestamp()))
+        publish_date_object = datetime.strptime(publish_date_string, '%Y%m%d_%H%M%S')
+
+        mod_time = publish_date_object + ( mod_time_offset_count * timedelta(seconds=1) )
+
+        time.sleep(1)
+
+        os.utime(output_path, (mod_time.timestamp(), mod_time.timestamp()))
 
     else:
         print('Downloaded Already')
@@ -283,10 +308,12 @@ if __name__ == '__main__':
 
                 left_link_info = left_link_dict[entry]
 
+                mod_time_offset_count = 0
+
                 media_link_list, front_title = get_media_link(entry, left_link_info)
 
                 for entry in media_link_list:
-                    download_media(entry, front_title, aidorusawaru_resources_dir)
+                    download_media(entry, front_title, aidorusawaru_resources_dir, mod_time_offset_count)
 
         elif choice == "2":
 
@@ -311,18 +338,24 @@ if __name__ == '__main__':
                     working_url = f'{aidoru_key}/{mid_tag}/page/{count}/'
 
 
+
                 left_link_list, left_link_dict = collect_download_link(working_url, aidoru_key)
 
                 for entry in left_link_list:
 
-                    print(entry)
+                    time.sleep(1)
+
+                    print(f'Page Count: {count} | {entry}')
 
                     left_link_info = left_link_dict[entry]
 
                     media_link_list, front_title = get_media_link(entry, left_link_info)
 
+                    mod_time_offset_count = 0
+
                     for entry in media_link_list:
-                        download_media(entry, front_title, aidorusawaru_resources_dir)
+                        download_media(entry, front_title, aidorusawaru_resources_dir, mod_time_offset_count)
+                        mod_time_offset_count += 1
 
                 count += 1
 

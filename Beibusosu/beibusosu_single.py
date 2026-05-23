@@ -51,6 +51,7 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         print(f"Publish Date: {publish_date}")
         publish_date_object = datetime.strptime(publish_date, "%Y-%m-%d")
 
+        # print(f'Now looking at model box')
         # Looks for the models in the image set
         left_middle_box = soup.find_all('div', class_='aside-setting__chapter')
         model_soup = left_middle_box[-1]
@@ -63,14 +64,34 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         # Copy the model list for reference
         copy_model_list = model_list.copy()
 
+        # print(f'Found models now comparing')
         # Compares the download status of the models found to their download status in the catalog
         model_dict = beibusosu_catalog.catalog_read(catalog_file)
+
+        # print(f'Catalog read properly')
+
+        # print(f'Copy Model')
+        # print(copy_model_list)
+
+        # print(f'Model Dict')
+        # print(model_dict)
+
+
         for copy_model in copy_model_list:
+
             if not copy_model in model_dict:
+
+                # print(f'{copy_model} added to catalog')
+
                 beibusosu_catalog.add_model(catalog_file, copy_model, 0)
+
+                # print(f'{copy_model} added to successfully')
                 if not override:
                     model_list.remove(copy_model)
             else:
+
+                # print(f'{copy_model} already in catalog')
+
                 if not model_dict[copy_model] == 1 and not override:
                     model_list.remove(copy_model)
 
@@ -172,7 +193,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
 
         print(f"Set Total Requested Size: {total_requested_size / (1024 * 1024)} MB")
         return total_requested_size
-    except:
+    except Exception as e:
+        print(f"ERROR: {e}")
         print("Elements not found")
         return total_requested_size
 
