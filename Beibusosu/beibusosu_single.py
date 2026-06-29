@@ -61,6 +61,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         for model in found_model:
             model_list.append(model.text.strip())
 
+        print(f'Found Model List: {model_list}')
+
         # Copy the model list for reference
         copy_model_list = model_list.copy()
 
@@ -77,7 +79,23 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         # print(model_dict)
 
 
+        model_name_path_map = {}
+
+
         for copy_model in copy_model_list:
+
+            print(f'Copy Model: {copy_model}')
+
+            print(f'Model Dictionary: {model_dict}')
+
+            print(f'!@#$!@#$!@#$!@#$!@#$!@#$!@#$!@#$')
+
+
+
+
+
+
+
 
             if not copy_model in model_dict:
 
@@ -92,14 +110,54 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
 
                 # print(f'{copy_model} already in catalog')
 
-                if not model_dict[copy_model] == 1 and not override:
+                # if not model_dict[copy_model] == 1 and not override:
+                #     model_list.remove(copy_model)
+
+                match_len_list = []
+
+                keep_bool = False
+
+                copy_model_len = len(copy_model)
+
+                for key in model_dict.keys():
+
+                    if str(key) in copy_model:
+
+                        print(f'Current Key: {key}')
+
+                        if model_dict[key] == 1 and not override:
+
+                            print(f'Valid Key: {key}')
+
+                            key_len = len(key)
+
+                            percent_len = key_len / copy_model_len
+
+                            match_len_list.append((key, percent_len))
+
+                            # model_name_path_map[copy_model] = key
+
+                            keep_bool = True
+
+                if keep_bool:
+                    sorted_match_len_list = sorted(match_len_list, key=lambda x: x[1], reverse=True)
+
+                    print(sorted_match_len_list)
+
+                    model_name_path_map[copy_model] = sorted_match_len_list[0][0]
+
+                if not keep_bool:
                     model_list.remove(copy_model)
+
 
         print(f"Final Model List: {model_list}")
 
+        print(f'Final Path Map: {model_name_path_map}')
+
         # Creates the folders in the beibusosu directory
         for model in model_list:
-            model_dir = resources_dir / model
+            # model_dir = resources_dir / model
+            model_dir = resources_dir / model_name_path_map[model]
 
             if not model_dir.exists():
                 os.makedirs(model_dir)
@@ -150,7 +208,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
                 absent_condition = False
 
                 for model in model_list:
-                    model_dir = resources_dir / model
+                    # model_dir = resources_dir / model
+                    model_dir = resources_dir / model_name_path_map[model]
                     img_path = model_dir / output_name
 
                     if not img_path.exists():
@@ -172,7 +231,8 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
                     to_save_image = image_resize(img, 1080)
 
                     for model in model_list:
-                        model_dir = resources_dir / model
+                        # model_dir = resources_dir / model
+                        model_dir = resources_dir / model_name_path_map[model]
                         img_path = model_dir / output_name
 
                         if not img_path.exists():

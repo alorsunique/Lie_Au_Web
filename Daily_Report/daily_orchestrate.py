@@ -5,6 +5,7 @@ import sys
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
+import subprocess
 
 import yaml
 
@@ -25,7 +26,26 @@ def find_project_root(script_path, marker):
 
 if __name__ == "__main__":
     # Five minute sleep to let the computer connect to internet
-    time.sleep(300)
+    time.sleep(150)
+
+
+
+    subprocess.run([r"D:\Scripts\Download Sort.bat"], check=True, shell=True)
+
+    inbound_phone_path = Path(r"D:\Inbound\Samsung S20 FE")
+    inbound_download_path = inbound_phone_path / 'Download'
+
+    date_string = datetime.today().strftime('%Y%m%d')
+
+    inbound_download_subfolder = inbound_download_path / date_string
+
+    if not inbound_download_subfolder.exists():
+        os.mkdir(inbound_download_subfolder)
+
+    else:
+        print('Folder already exists')
+
+    time.sleep(150)
 
 
     config_file_name = 'Lie_Au_Web_config.yaml'
@@ -66,6 +86,10 @@ if __name__ == "__main__":
     from Daily_Report import kpop_comeback_reader
     from Daily_Report import weather_test
     from Daily_Report import daily_report
+
+    from Daily_Report.Daily_Web import main_web
+
+    main_web.main()
 
 
     def scheduled_set_function_call():

@@ -202,6 +202,13 @@ user_prompt = """
     I will be sending the supplemental articles in a string version of a Python dictionary.
 """
 
+message_list.append(
+    {
+        "role": "user",
+        "content": user_prompt,
+    }
+)
+
 for supplemental_article_count, supplemental_article in enumerate(supplemental_page_list):
     message_list.append(
         {
