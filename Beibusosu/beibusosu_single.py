@@ -11,6 +11,7 @@ from PIL import Image
 from bs4 import BeautifulSoup
 
 import beibusosu_catalog
+import time
 
 
 # Resizes the image
@@ -39,6 +40,9 @@ def image_resize(img, min_size):
 
 # Main function to download images in a beibusosu page
 def main_image_box_download(url, resources_dir, catalog_file, override):
+    print(f"Sleeping")
+    time.sleep(8)
+
     request_result = requests.get(url)  # Request the url
     soup = BeautifulSoup(request_result.text, 'html.parser')
 
@@ -203,6 +207,7 @@ def main_image_box_download(url, resources_dir, catalog_file, override):
         print(f"ERROR: {e}")
         print("Elements not found")
         return total_requested_size
+
 
 
 if __name__ == "__main__":
