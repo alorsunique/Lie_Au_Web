@@ -72,6 +72,29 @@ def index():
 
 
 
+
+    # Try reading the wiki writer
+    try:
+        with open(wiki_path_article, 'r', encoding='utf-8') as file:
+            wiki_article_content = file.read()
+    except FileNotFoundError:
+        wiki_article_content = "Weather report file not found."
+    except Exception as e:
+        wiki_article_content = f"Error reading weather report: {e}"
+
+
+
+    # Try reading the wiki writer
+    try:
+        with open(wiki_path_writer, 'r', encoding='utf-8') as file:
+            wiki_writer_content = file.read()
+    except FileNotFoundError:
+        wiki_writer_content = "Weather report file not found."
+    except Exception as e:
+        wiki_writer_content = f"Error reading weather report: {e}"
+
+
+
     # Render the HTML template with the content
     return render_template(
         'index.html',
@@ -80,7 +103,10 @@ def index():
         complete_summary = complete_content,
         current_time=current_time,
         current_date=current_date,
-        current_day_of_week=current_day_of_week)
+        current_day_of_week=current_day_of_week,
+        wiki_writer=wiki_writer_content,
+        wiki_article=wiki_article_content,
+    )
 
 if __name__ == '__main__':
     config_file_name = 'Lie_Au_Web_config.yaml'
@@ -105,4 +131,12 @@ if __name__ == '__main__':
     TEXT_FILE_PATH = r'D:\Projects\Resources\Lie_Au_Web Resources\Daily Report\daily_text.txt'
     WEATHER_PATH = r'D:\Projects\Resources\Lie_Au_Web Resources\Daily Report\daily_weather_text.txt'
     COMPLETE_PATH = r'D:\Projects\Resources\Lie_Au_Web Resources\Daily Report\complete_summary.txt'
+
+
+
+    wiki_path_article = r"D:\Projects\Resources\Lie_Au_Web Resources\Wiki\Persona_Article.txt"
+    wiki_path_writer = r"D:\Projects\Resources\Lie_Au_Web Resources\Wiki\Persona_Writer.txt"
+
+
+
     app.run(debug=True)

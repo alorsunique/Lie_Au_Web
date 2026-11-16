@@ -28,6 +28,42 @@ def catalog_show(catalog_file):
     print(df.to_string())
 
 
+
+
+
+
+def processed_read(processed_file):
+    df = pd.read_excel(processed_file)
+    processed_list = df['Post_Link'].tolist()
+
+    return processed_list
+
+
+def processed_write(processed_file, model_name, post_link):
+
+    if processed_file.exists():
+        df = pd.read_excel(processed_file)
+
+        to_concat_df = pd.DataFrame({
+            'Model': [model_name],
+            'Post_Link': [post_link]
+        })
+
+        df = pd.concat([df, to_concat_df], ignore_index=True)
+
+    else:
+        df = pd.DataFrame({
+            'Model': [model_name],
+            'Post_Link': [post_link]
+        })
+
+    df.to_excel(processed_file, sheet_name='Link', index=False)
+
+
+
+
+
+
 # Adds model to the catalog
 def add_model(catalog_file, model_name, download_status):
     df = pd.read_excel(catalog_file)

@@ -29,8 +29,10 @@ import random
 
 selected_persona = random.choice(json_list)
 
+print(str(selected_persona.stem))
 
-# selected_persona = json_list[8]
+
+# selected_persona = json_list[9]
 
 print(selected_persona)
 
@@ -75,13 +77,26 @@ for count, page in enumerate(page_list):
 
     # inner_page = wiki_wiki.page('Peacocks Crossroads, North Carolina')
 
-    inner_page = wiki_wiki.page('The Origin of Consciousness in the Breakdown of the Bicameral Mind')
-
-    inner_page = wiki_wiki.page('Gang bang')
+    # inner_page = wiki_wiki.page('The Origin of Consciousness in the Breakdown of the Bicameral Mind')
 
 
+    # inner_page = wiki_wiki.page('Florida Keys')
 
-    inner_page = wiki_wiki.page('Florida Keys')
+    # inner_page = wiki_wiki.page('Solarpunk')
+
+    # inner_page = wiki_wiki.page('Sustainable city')
+
+    # inner_page = wiki_wiki.page('Northern Territory')
+
+    # inner_page = wiki_wiki.page('Sister city')
+
+    # inner_page = wiki_wiki.page('Tongass National Forest')
+
+    # inner_page = wiki_wiki.page('National Gallery of Australia')
+
+    # inner_page = wiki_wiki.page('Marquette, Michigan')
+
+    # inner_page = wiki_wiki.page('Houghton, Michigan')
 
     # print(f"Page Title: {inner_page.title}")
 
@@ -469,4 +484,17 @@ overall_finish_time = now
 current_time = now.strftime("%H:%M:%S")
 print(f"\n\n\n\nProgram End Time: {current_time}")
 print(f"Total Program Run Time: {overall_finish_time - overall_start_time}")
+
+
+
+daily_persona_writer_path = Path( r"D:\Projects\Resources\Lie_Au_Web Resources\Wiki\Persona_Writer.txt" )
+
+with open(daily_persona_writer_path, 'w', encoding='utf-8') as open_text:
+    open_text.write(str(selected_persona.stem))
+
+daily_persona_article_path = Path( r"D:\Projects\Resources\Lie_Au_Web Resources\Wiki\Persona_Article.txt" )
+
+with open(daily_persona_article_path, 'w', encoding='utf-8') as open_text:
+    open_text.write(message_content)
+
 

@@ -44,6 +44,8 @@ if __name__ == "__main__":
 
     catalog_path = beibusosu_resources_dir / "Catalog.xlsx"
 
+    processed_entry_path = beibusosu_resources_dir / "Processed.xlsx"
+
     read_df = pd.read_excel(catalog_path)
 
     workable_df = read_df.loc[ ~read_df['Home Link'].isna() ]
@@ -129,8 +131,12 @@ if __name__ == "__main__":
                 post_count += 1
                 print(f"\nSet {post_count}/{post_link_length} | Working on set {link}\n")
                 try:
+                    # set_size = beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path,
+                    #                                                     override)
+
                     set_size = beibusosu_single.main_image_box_download(link, beibusosu_resources_dir, catalog_path,
-                                                                        override)
+                                                                        processed_entry_path, override)
+
                     total_requested_size += set_size
 
                     print(f"Current Set Requested Size: {total_requested_size / (1024 * 1024)} MB")

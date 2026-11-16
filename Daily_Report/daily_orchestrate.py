@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 import subprocess
+import shutil
 
 import yaml
 
@@ -26,7 +27,7 @@ def find_project_root(script_path, marker):
 
 if __name__ == "__main__":
     # Five minute sleep to let the computer connect to internet
-    time.sleep(150)
+    # time.sleep(150)
 
 
 
@@ -44,6 +45,27 @@ if __name__ == "__main__":
 
     else:
         print('Folder already exists')
+
+
+
+    for entry in inbound_download_path.iterdir():
+
+        if entry.is_dir():
+            if not any( entry.iterdir() ):
+                print(f"{entry} is empty")
+
+                if not entry.name == date_string:
+                    print(f'Will delete {entry}')
+                    shutil.rmtree(entry)
+            else:
+                print(f"{entry} has content")
+
+        else:
+            print(f"{entry} is file")
+
+
+
+
 
     time.sleep(150)
 
